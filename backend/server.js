@@ -3,7 +3,16 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const exphsb = require('express-handlebars');
+const path = require('path');
 const corsMiddleware = require('./middleware'); // Adjust the path as needed
+
+const db = require('./config/database');
+
+// Test the connection status
+db.authenticate()
+    .then( ()=>console.log('Database connected') )
+    .catch( err=> console.log('Error:' + err) )
 
 const app = express();
 app.use(bodyParser.json());
