@@ -6,13 +6,12 @@ const SERVER_ADDRESS = 'http://localhost:3000'
 document.getElementById('workoutForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const workoutResult = document.getElementById('workoutResult');
-    const workoutList = document.getElementById('workoutList');
+    const workoutResult = document.getElementById('workoutResult'); // Workout idea appears inside here.
+    const workoutList = document.getElementById('workoutList');  // Inner list of workoutResult.
     workoutList.innerHTML = '';
 
     const data = {
         fitnessGoal: 'weightLoss',
-        equipment: ['dumbbells', 'resistanceBands'],
         workoutPreferences: 'Focus on upper body and core strength.'
     };
     

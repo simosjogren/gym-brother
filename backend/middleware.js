@@ -4,7 +4,7 @@
 const cors = require('cors');
 
 const corsOptions = {
-  origin: 'http://localhost:3000', // Replace with the actual origin of your frontend
+  origin: 'http://192.168.1.52:7000', // Replace with the actual origin of your frontend
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
