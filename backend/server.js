@@ -2,6 +2,7 @@
 // Simo Sjögren
 
 const express = require('express');
+const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const exphsb = require('express-handlebars');
 const path = require('path');
@@ -10,7 +11,7 @@ const corsMiddleware = require('./middleware'); // Adjust the path as needed
 const db = require('./config/database');
 
 const testData = {
-    'user-id': '123testid99',
+    'username': '123testid99',
     'exercises': ['lat pulldown', 'bench press', 'squat']
 }
 
@@ -28,7 +29,7 @@ app.post('/post-workout', (req, res) => {
     console.log('Received /post-workout command.')
     const { fitnessGoal, latestWorkout } = req.body;
 
-    // TODO establish a functionality which posts stuff to the database.
+    // TODO establish a functionality which latest workout to the database.
 
     res.json({ latestWorkout });
 });
@@ -36,10 +37,54 @@ app.post('/post-workout', (req, res) => {
 app.get('/get-workout', (req, res) => {
     console.log('Received /get-workout command.')
 
-    // TODO establish a connection to the database
+    // TODO make a query to the database which retrieves the user's last workout.
 
     res.json({ testData })
 });
+
+app.post('/users', async (req,res) => {
+    try {
+        console.log('Post request to /users')
+        console.log("Creating new account with username " + req.body.username)
+        const hashedPassword = await bcrypt.hash(req.body.password, 10) // Salt with number 10
+        const user = {'username': req.body.username, 'password': hashedPassword}
+        console.log('Hashed password: ' + hashedPassword)
+
+        // TODO: Check if account already exists or not in the database.
+        // TODO: Create a new account to the users-table of the database.
+        // TODO: Create a new table to the database according to username & password.
+
+        res.status(201).send()
+    } catch {
+        res.status(500).send()
+    }
+})
+
+app.post('/users/login', async (req,res) => {
+    console.log('Post request to /users/login')
+    console.log("Trying to sign in with the username " + req.body.username)
+
+    // TODO implement a functionality which checks if the account exists from database.
+    // and retrieves the password at the same time.
+
+    const testPassword = '$2b$10$hj3.3Jj7PNxcgxSR2.LU1eDcYrn69QqbuLiuA3YPoCysRQUxkzmAW'
+
+    try {
+        if (await bcrypt.compare(req.body.password, testPassword)) {
+            // Correct password
+
+            // TODO send cookie
+
+            res.status(200).send()
+        } else {
+            // Wrong password
+            res.status(401).send()
+        }
+    } catch {
+        // Unknown error
+        res.status(500).send()
+    }
+})
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

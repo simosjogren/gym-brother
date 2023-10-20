@@ -5,8 +5,75 @@ const SERVER_ADDRESS = 'http://localhost:3000';
 let typingTimer;
 
 const userData = {
-    'user-id': '123testid99',
+    'username': '123testid99',
 }
+
+function showLogin() {
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('createAccountForm').classList.add('hidden');
+}
+
+function showCreateAccount() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('createAccountForm').classList.remove('hidden');
+}
+
+// Function to handle login form submission
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const credentials = {
+        'username': username,
+        'password': password
+    };
+    // Time to send the create-account request to the server
+    fetch(SERVER_ADDRESS + '/users/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to log in'); // Catch block
+        }
+    })
+    .then(data => {
+        // TODO the data WILL be the cookie.
+        console.log('Login was success');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+// Function to handle create account form submission
+document.getElementById('createAccountForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const newUsername = document.getElementById('newUsername').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const credentials = {
+        'username': newUsername,
+        'password': newPassword
+    };
+    // Time to send the create-account request to the server
+    fetch(SERVER_ADDRESS + '/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+    })
+    .then(response => response.status)
+    .then(data => {
+        console.log('New account successfully created.');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
 
 document.getElementById('latestWorkout').addEventListener('input', function() {
     clearTimeout(typingTimer);
