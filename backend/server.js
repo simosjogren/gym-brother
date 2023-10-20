@@ -9,7 +9,12 @@ const corsMiddleware = require('./middleware'); // Adjust the path as needed
 
 const db = require('./config/database');
 
-// Test the connection status
+const testData = {
+    'user-id': '123testid99',
+    'exercises': ['lat pulldown', 'bench press', 'squat']
+}
+
+// Test the database-connection status
 db.authenticate()
     .then( ()=>console.log('Database connected') )
     .catch( err=> console.log('Error:' + err) )
@@ -19,19 +24,21 @@ app.use(bodyParser.json());
 // Use the CORS middleware
 app.use(corsMiddleware);
 
-app.post('/generate-workout', (req, res) => {
-    console.log('Received /generate-workout command')
-    const { fitnessGoal, equipment, workoutPreferences } = req.body;
+app.post('/post-workout', (req, res) => {
+    console.log('Received /post-workout command.')
+    const { fitnessGoal, latestWorkout } = req.body;
 
-    // Here, you can process the received data and generate workout routines.
-    // For now, we'll just return a mock workoutData object.
-    const workoutData = [
-        'Push Ups: 3 sets of 12 reps',
-        'Squats: 3 sets of 10 reps',
-        'Plank: Hold for 60 seconds'
-    ];
+    // TODO establish a functionality which posts stuff to the database.
 
-    res.json({ workoutData });
+    res.json({ latestWorkout });
+});
+
+app.get('/get-workout', (req, res) => {
+    console.log('Received /get-workout command.')
+
+    // TODO establish a connection to the database
+
+    res.json({ testData })
 });
 
 const PORT = process.env.PORT || 3000;

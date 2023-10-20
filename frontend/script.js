@@ -1,21 +1,44 @@
 // Frontend scripts for the gym-bro
 // Simo Sjögren
 
-const SERVER_ADDRESS = 'http://localhost:3000'
+const SERVER_ADDRESS = 'http://localhost:3000';
+let typingTimer;
 
-document.getElementById('workoutForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+const userData = {
+    'user-id': '123testid99',
+}
 
-    const workoutResult = document.getElementById('workoutResult'); // Workout idea appears inside here.
-    const workoutList = document.getElementById('workoutList');  // Inner list of workoutResult.
-    workoutList.innerHTML = '';
+document.getElementById('latestWorkout').addEventListener('input', function() {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(postWorkout, 2000);
+});
+
+function getWorkout() {
+    fetch(SERVER_ADDRESS + '/get-workout', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Retrieved the new workout from the database:', data);
+        document.getElementById('workoutResult').classList.remove('hidden');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function postWorkout() {
+    // With this function, we post the current workout to the database.
 
     const data = {
         fitnessGoal: 'weightLoss',
-        workoutPreferences: 'Focus on upper body and core strength.'
+        latestWorkout: document.getElementById('latestWorkout').value
     };
     
-    fetch(SERVER_ADDRESS + '/generate-workout', {
+    fetch(SERVER_ADDRESS + '/post-workout', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -24,17 +47,14 @@ document.getElementById('workoutForm').addEventListener('submit', function(event
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Generated Workout Data:', data.workoutData);
+        console.log('Saved workout-data to the database:', data.latestWorkout);
     })
     .catch(error => {
         console.error('Error:', error);
     });
+}
 
-    workoutData.forEach(workout => {
-        const li = document.createElement('li');
-        li.textContent = workout;
-        workoutList.appendChild(li);
-    });
-
-    workoutResult.classList.remove('hidden');
+document.getElementById('workoutForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    postWorkout();
 });

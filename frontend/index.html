@@ -16,17 +16,19 @@
                 <option value="muscleGain">Muscle Gain</option>
                 <option value="endurance">Endurance</option>
             </select>
-
-            <label for="workoutPreferences">Workout Preferences:</label>
-            <textarea id="workoutPreferences" rows="4" cols="50"></textarea>
-            <button type="submit">Generate Workout</button>
-        </form>
-
+    
+            <label for="latestWorkout">Write your current workout:</label>
+            <textarea id="latestWorkout" rows="4" cols="50"></textarea>
+        </form><br>
+        
+        <button type="button" onclick="getWorkout()">Retrieve new workout</button>
+        
         <div id="workoutResult" class="hidden">
             <h2>Generated Workout</h2>
             <ul id="workoutList"></ul>
         </div>
     </div>
+    
 
     <script src="script.js"></script>
 </body>
