@@ -31,11 +31,13 @@ function getWorkout() {
 }
 
 function postWorkout() {
-    // With this function, we post the current workout to the database.
+    const workoutTextarea = document.getElementById('latestWorkout');
+    const savedMessage = document.getElementById('workoutSavedMessage');
+    const savedTime = document.getElementById('savedTime');
 
     const data = {
         fitnessGoal: 'weightLoss',
-        latestWorkout: document.getElementById('latestWorkout').value
+        latestWorkout: workoutTextarea.value
     };
     
     fetch(SERVER_ADDRESS + '/post-workout', {
@@ -47,6 +49,9 @@ function postWorkout() {
     })
     .then(response => response.json())
     .then(data => {
+        const now = new Date();
+        savedTime.textContent = now.toLocaleString();
+        savedMessage.classList.remove('hidden');
         console.log('Saved workout-data to the database:', data.latestWorkout);
     })
     .catch(error => {

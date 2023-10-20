@@ -33,6 +33,11 @@ button:hover {
     background-color: #45a049;
 }
 
+#workoutSavedMessage {
+    color: green;
+    font-size: 14px;
+}
+
 .hidden {
     display: none;
 }

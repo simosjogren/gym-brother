@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Workout Generator</title>
+    <title>Gym Brother</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Custom Workout Generator</h1>
+        <h1>Gym Brother</h1>
         <form id="workoutForm">
             <label for="fitnessGoal">Fitness Goal:</label>
             <select id="fitnessGoal" required>
@@ -18,7 +18,8 @@
             </select>
     
             <label for="latestWorkout">Write your current workout:</label>
-            <textarea id="latestWorkout" rows="4" cols="50"></textarea>
+            <textarea id="latestWorkout" rows="20" cols="40"></textarea>
+            <div id="workoutSavedMessage" class="hidden">Workout saved at <span id="savedTime"></span></div>
         </form><br>
         
         <button type="button" onclick="getWorkout()">Retrieve new workout</button>
