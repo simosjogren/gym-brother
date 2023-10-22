@@ -9,6 +9,7 @@ const path = require('path');
 const corsMiddleware = require('./middleware'); // Adjust the path as needed
 
 const db = require('./config/database');
+const credentials = require('./config/credentials_connection');
 
 const testData = {
     'username': '123testid99',
@@ -19,6 +20,15 @@ const testData = {
 db.authenticate()
     .then( ()=>console.log('Database connected') )
     .catch( err=> console.log('Error:' + err) )
+
+// Sync all models with the database
+db.sync()
+    .then(() => {
+        console.log('Database and models synced');
+    })
+    .catch(error => {
+        console.error('Error syncing database:', error);
+    });
 
 const app = express();
 app.use(bodyParser.json());
@@ -49,11 +59,21 @@ app.post('/users', async (req,res) => {
         const hashedPassword = await bcrypt.hash(req.body.password, 10) // Salt with number 10
         const user = {'username': req.body.username, 'password': hashedPassword}
         console.log('Hashed password: ' + hashedPassword)
-
+    
         // TODO: Check if account already exists or not in the database.
-        // TODO: Create a new account to the users-table of the database.
+    
+        // Inserts user's hashed credentials to the database.
+        credentials.create({
+            id: user.username,
+            password: user.password
+        }).then(user => {
+            console.log('User created:', user);
+        }).catch(error => {
+            console.error('Error creating user:', error);
+        });
+    
         // TODO: Create a new table to the database according to username & password.
-
+    
         res.status(201).send()
     } catch {
         res.status(500).send()
@@ -61,30 +81,54 @@ app.post('/users', async (req,res) => {
 })
 
 app.post('/users/login', async (req,res) => {
-    console.log('Post request to /users/login')
-    console.log("Trying to sign in with the username " + req.body.username)
-
-    // TODO implement a functionality which checks if the account exists from database.
-    // and retrieves the password at the same time.
-
-    const testPassword = '$2b$10$hj3.3Jj7PNxcgxSR2.LU1eDcYrn69QqbuLiuA3YPoCysRQUxkzmAW'
-
-    try {
-        if (await bcrypt.compare(req.body.password, testPassword)) {
-            // Correct password
-
-            // TODO send cookie
-
-            res.status(200).send()
-        } else {
-            // Wrong password
-            res.status(401).send()
-        }
-    } catch {
-        // Unknown error
-        res.status(500).send()
+    const user = {
+        username: req.body.username,
+        password: req.body.password
     }
-})
+    console.log('Post request to /users/login')
+    
+    // SQL-query for given username
+    credentials.findOne({
+        where: { id: user.username }
+    })
+    .then(retrievedDBUser => {
+        console.log(retrievedDBUser.createdAt)
+        // Checking if the user is found.
+        if (retrievedDBUser) {
+            try {
+                // Password comparision
+                bcrypt.compare(user.password, retrievedDBUser.password)
+                .then(isMatch => {
+                    if (isMatch) {
+                        // Correct password
+                        console.log('Password was correct.')
+            
+                        // TODO send cookie
+        
+                        res.status(200).send()
+                    } else {
+                        // Wrong password
+                        console.log('Password was INCORRECT.')
+                        res.status(401).send()
+                    }
+                })
+                .catch(error => {
+                    console.error('Error comparing passwords:', error);
+                    res.status(500).send();
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                res.status(500).send();
+            }
+        } else {
+            res.status(404).send('User not found');
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching user:', error);
+        res.status(500).send('Error fetching user');
+    });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
