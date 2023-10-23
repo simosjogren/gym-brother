@@ -4,6 +4,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const credentials = require('./config/credentials_connection');
+const createNewDatatable = require('./config/new_datatable');   // This is a function.
 
 const userRouter = express.Router();
 
@@ -14,35 +15,38 @@ userRouter.post('/users', async (req,res) => {
         const hashedPassword = await bcrypt.hash(req.body.password, 10) // Salt with number 10
         const user = {'username': req.body.username, 'password': hashedPassword}
         console.log('Hashed password: ' + hashedPassword)
-    
+        
+        // TODO: Better errorhandling
         credentials.findOne({
             where: { id: user.username }
         }).then(retrievedDBUser => {
             if(retrievedDBUser) {
-                console.log('User already exists.')
-                res.status(409).send()
+                res.status(409).send()  // User exists.
             } else {
-                console.log('User does not exists.')
-                // Inserts user's hashed credentials to the database
+                // Inserts user's hashed credentials in to the database.
                 credentials.create({
                     id: user.username,
                     password: user.password
-                }).then(user => {
-                    console.log('User created:', user);
+                }).then(createdUser => {
+                    createNewDatatable(user.username)
+                    console.log('New user table created.')
+                    res.status(201).send()  // User created successfully.
                 }).catch(error => {
-                    console.error('Error creating user:', error);
+                    console.error('ERROR:', error);
+                    res.status(500).send()  // Unknown error.
                 });
-                // TODO: Create a new table to the database according to username & password
-
-                res.status(201).send()
             }
         }).catch(error => {
-            console.log('Unknown error.')
+            console.log('ERROR: ' + error)
+            res.status(500).send()  // Unknown error.
         })
-    } catch {
-        res.status(500).send()
+    } catch {error => {
+        console.log('ERROR: ' + error)
+        res.status(500).send()  // Unknown error.
+    }
     }
 });
+
 
 userRouter.post('/users/login', async (req,res) => {
     const user = {
