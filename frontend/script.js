@@ -68,7 +68,7 @@ document.getElementById('createAccountForm').addEventListener('submit', function
     })
     .then(response => response.status)
     .then(data => {
-        console.log('New account successfully created.');
+        console.log(data);
     })
     .catch(error => {
         console.error('Error:', error);

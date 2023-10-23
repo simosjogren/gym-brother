@@ -1,15 +1,19 @@
-// Backend for the gym-bro
+// Main backend for the gym-bro
 // Simo Sjögren
 
+
+// Import regular packages
 const express = require('express');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const exphsb = require('express-handlebars');
 const path = require('path');
 
+// Import middleware-packages
 const corsMiddleware = require('./middleware');
 const userRouter = require('./userRoutes');
 
+// Import database-settings
 const db = require('./config/database');
 const credentials = require('./config/credentials_connection');
 
@@ -17,6 +21,7 @@ const testData = {
     'username': '123testid99',
     'exercises': ['lat pulldown', 'bench press', 'squat']
 }
+
 
 // Test the database-connection status
 db.authenticate()

@@ -15,21 +15,30 @@ userRouter.post('/users', async (req,res) => {
         const user = {'username': req.body.username, 'password': hashedPassword}
         console.log('Hashed password: ' + hashedPassword)
     
-        // TODO: Check if account already exists or not in the database
-    
-        // Inserts user's hashed credentials to the database
-        credentials.create({
-            id: user.username,
-            password: user.password
-        }).then(user => {
-            console.log('User created:', user);
+        credentials.findOne({
+            where: { id: user.username }
+        }).then(retrievedDBUser => {
+            if(retrievedDBUser) {
+                console.log('User already exists.')
+                res.status(409).send()
+            } else {
+                console.log('User does not exists.')
+                // Inserts user's hashed credentials to the database
+                credentials.create({
+                    id: user.username,
+                    password: user.password
+                }).then(user => {
+                    console.log('User created:', user);
+                }).catch(error => {
+                    console.error('Error creating user:', error);
+                });
+                // TODO: Create a new table to the database according to username & password
+
+                res.status(201).send()
+            }
         }).catch(error => {
-            console.error('Error creating user:', error);
-        });
-    
-        // TODO: Create a new table to the database according to username & password
-    
-        res.status(201).send()
+            console.log('Unknown error.')
+        })
     } catch {
         res.status(500).send()
     }
@@ -45,8 +54,7 @@ userRouter.post('/users/login', async (req,res) => {
     // SQL-query for given username
     credentials.findOne({
         where: { id: user.username }
-    })
-    .then(retrievedDBUser => {
+    }).then(retrievedDBUser => {
         console.log(retrievedDBUser.createdAt)
         // Checking if the user is found
         if (retrievedDBUser) {
