@@ -3,8 +3,8 @@
 
 const express = require('express');
 const bcrypt = require('bcrypt');
-const credentials = require('./config/credentials_connection');
-const createNewDatatable = require('./config/new_datatable');   // This is a function.
+const credentials = require('../config/credentials_connection');
+const createNewDatatable = require('../config/new_datatable');   // This is a function.
 
 const userRouter = express.Router();
 
