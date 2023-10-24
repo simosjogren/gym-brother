@@ -7,6 +7,8 @@ const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const exphsb = require('express-handlebars');
 const path = require('path');
+const axios = require('axios');
+
 
 // Import middleware-packages
 const corsMiddleware = require('./middleware/CORS');
@@ -41,14 +43,34 @@ app.use(bodyParser.json());
 app.use(corsMiddleware); // CORS middleware
 app.use(userRouter); // User login middleware
 
-app.post('/post-workout', (req, res) => {
+app.post('/post-workout', async (req, res) => {
+    // We send the latest workout to the python server for parsing.
     console.log('Received /post-workout command.')
     const { fitnessGoal, latestWorkout } = req.body;
 
-    // TODO establish a functionality which latest workout to the database.
+    try {
+        const response = await axios.post('http://127.0.0.1:5000/parse-input', { string: latestWorkout }, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
-    res.json({ latestWorkout });
+        if (response.status !== 200) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const parsedData = response.data;
+
+        // TODO: Send the parsed workout into database.
+        // Next time the user refreshes the page, the workout is parsed in a better way.
+
+        res.json({ latestWorkout: parsedData });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
+
+
 
 app.get('/get-workout', (req, res) => {
     console.log('Received /get-workout command.')
@@ -57,6 +79,16 @@ app.get('/get-workout', (req, res) => {
 
     res.json({ testData })
 });
+
+
+app.get('/upgrade-workout', (req, res) => {
+    console.log('Received /upgrade-workout command.')
+
+    // TODO establish functionality which sends the string into a python microservice for parsing.
+    // TODO establish functionality which sends the parsed string to the python microservice for upgrading progress.
+    // TODO send the parsed workout into database.
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
