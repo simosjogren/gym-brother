@@ -46,13 +46,13 @@ app.use(userRouter); // User login middleware
 app.post('/post-workout', verifyToken, async (req, res) => {
     // We send the latest workout to the python server for parsing.
     console.log('Received /post-workout command.')
-    console.log(req.body)
-    const { fitnessGoal, latestWorkout } = req.body;
+    const { latestWorkout } = req.body; // We need only this one variable.
 
     // Lets just straight outsource the parsing to the python server.
     try {
-        const response = await axios.post('http://127.0.0.1:5000/parse-input', { string: latestWorkout }, {
-            headers: {
+        const response = await axios.post('http://127.0.0.1:5000/parse-input', 
+        { workoutString: latestWorkout }, 
+        { headers: {
                 'Content-Type': 'application/json',
             },
         });
