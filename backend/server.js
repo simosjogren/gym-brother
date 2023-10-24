@@ -9,14 +9,14 @@ const exphsb = require('express-handlebars');
 const path = require('path');
 const axios = require('axios');
 
-
 // Import middleware-packages
 const corsMiddleware = require('./middleware/CORS');
 const userRouter = require('./middleware/userRoutes');
+const verifyToken = require('./middleware/tokenVerification');
 
 // Import database-settings
-const db = require('./config/database');
-const credentials = require('./config/credentials_connection');
+const db = require('./config/connect_to_database');
+const sessiontokens = require('./config/tokens_connection');
 
 const testData = {
     'username': '123testid99',
@@ -43,11 +43,13 @@ app.use(bodyParser.json());
 app.use(corsMiddleware); // CORS middleware
 app.use(userRouter); // User login middleware
 
-app.post('/post-workout', async (req, res) => {
+app.post('/post-workout', verifyToken, async (req, res) => {
     // We send the latest workout to the python server for parsing.
     console.log('Received /post-workout command.')
+    console.log(req.body)
     const { fitnessGoal, latestWorkout } = req.body;
 
+    // Lets just straight outsource the parsing to the python server.
     try {
         const response = await axios.post('http://127.0.0.1:5000/parse-input', { string: latestWorkout }, {
             headers: {
@@ -72,7 +74,7 @@ app.post('/post-workout', async (req, res) => {
 
 
 
-app.get('/get-workout', (req, res) => {
+app.get('/get-workout', verifyToken, (req, res) => {
     console.log('Received /get-workout command.')
 
     // TODO make a query to the database which retrieves the user's last workout.
@@ -81,7 +83,7 @@ app.get('/get-workout', (req, res) => {
 });
 
 
-app.get('/upgrade-workout', (req, res) => {
+app.get('/upgrade-workout', verifyToken, (req, res) => {
     console.log('Received /upgrade-workout command.')
 
     // TODO establish functionality which sends the string into a python microservice for parsing.

@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const db = require('./database');
+const db = require('./connect_to_database');
 
 async function createNewDatatable(username) {
     try {

@@ -38,11 +38,14 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     .then(response => {
         if (!response.ok) {
             throw new Error('Failed to log in'); // Catch block
+        } else {
+            return response.json(); // Return the promise
         }
     })
-    .then(data => {
-        // TODO the data WILL be the cookie.
-        console.log('Login was success');
+    .then(token => { // Use the resolved token
+        console.log('Retrieved token: ' + token.token);
+        localStorage.setItem('token', token.token);
+        localStorage.setItem('username', credentials.username);
     })
     .catch(error => {
         console.error('Error:', error);
@@ -103,14 +106,18 @@ function postWorkout() {
     const savedTime = document.getElementById('savedTime');
 
     const data = {
+        username: localStorage.getItem('username'),
         fitnessGoal: 'weightLoss',
         latestWorkout: workoutTextarea.value
     };
+
+    const token = localStorage.getItem('token');
     
     fetch(SERVER_ADDRESS + '/post-workout', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(data),
     })

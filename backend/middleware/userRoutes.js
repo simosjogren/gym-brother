@@ -4,7 +4,10 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const credentials = require('../config/credentials_connection');
+const sessiontokens = require('../config/tokens_connection');
 const createNewDatatable = require('../config/new_datatable');   // This is a function.
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
 const userRouter = express.Router();
 
@@ -67,12 +70,35 @@ userRouter.post('/users/login', async (req,res) => {
                 bcrypt.compare(user.password, retrievedDBUser.password)
                 .then(isMatch => {
                     if (isMatch) {
-                        // Correct password
+                        // Correct password. Now we create the cookie.
                         console.log('Password was correct.')
-            
-                        // TODO send cookie
-        
-                        res.status(200).send()
+                        const secretKey = crypto.randomBytes(32).toString('hex');   // Create secret key
+                        const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
+                        console.log('Token: ' + token)
+                        res.json({ token: token });
+                        // Time to save the cookie to database.
+                        sessiontokens.findOrCreate({
+                            where: { id: user.username },
+                            defaults: { token: token }
+                          }).then(([tokenRecord, created]) => {
+                            if (!created) {
+                              // Token already existed, update it
+                              tokenRecord.update({ token: token })
+                                .then(updatedToken => {
+                                  res.status(200).send(); // Token updated successfully
+                                })
+                                .catch(error => {
+                                  console.error('ERROR:', error);
+                                  res.status(500).send(); // Error updating token
+                                });
+                            } else {
+                              res.status(200).send(); // Token created successfully
+                            }
+                          }).catch(error => {
+                            console.error('ERROR:', error);
+                            res.status(500).send(); // Error finding or creating token
+                          });
+                                              
                     } else {
                         // Wrong password
                         console.log('Password was INCORRECT.')
