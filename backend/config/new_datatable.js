@@ -10,13 +10,9 @@ async function createNewDatatable(username) {
                 primaryKey: true,
                 allowNull: false
             },
-            exerciseWeights: {
-                type: DataTypes.INTEGER(),
+            exercises: {
+                type: DataTypes.STRING(256),
                 allowNull: false
-            },
-            exerciseReps: {
-                type: DataTypes.INTEGER(),
-                allowNull: true     // Can be null
             },
             exerciseComments: {
                 type: DataTypes.STRING(128),

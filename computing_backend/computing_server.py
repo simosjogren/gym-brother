@@ -7,6 +7,9 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 def input_parser(workoutstring):
+
+    # TODO outer loop for /n marks
+    # TODO inspection if there are multiple weights used in the exercise
     
     workoutstring = workoutstring.replace(" ", "")
     strippedString = workoutstring.split(":")
@@ -40,8 +43,8 @@ def input_parser(workoutstring):
     # Create the JSON object
     parsedData = {
         "exerciseName": exerciseName,
-        "weight": [{
-            "weight": weights,
+        "exercises": [{
+            "weights": weights,
             "both_sides": both_sides,
             "reps": reps
         }],
@@ -60,7 +63,6 @@ def parse_input():
     parsedData = input_parser(workoutstring)
 
     print(parsedData)
-    # fakeParsedData = {'exerciseName': 'Ylätalja', 'weight': [{'weight': 80, 'both_sides': True, 'reps': [10,10,8]}], 'comment': 'Enemmän ensikerralla!'}
     return jsonify(parsedData)
 
 

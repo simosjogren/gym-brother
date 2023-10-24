@@ -43,7 +43,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         }
     })
     .then(token => { // Use the resolved token
-        console.log('Retrieved token: ' + token.token);
         localStorage.setItem('token', token.token);
         localStorage.setItem('username', credentials.username);
     })

@@ -5,13 +5,14 @@ const jwt = require('jsonwebtoken');
 const sessiontokens = require('../config/tokens_connection');
 
 function verifyToken(req, res, next) {
+  const username = req.body.username
   const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
   if (!token) {
     console.log('Did not receive a token.')
-    return res.status(403).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorized' });
   }
   sessiontokens.findOne({
-    where: { id: req.body.username }
+    where: { id: username }
   }).then(retrievedToken => {
     if(!retrievedToken) {
       console.log('Did not find the token.')
@@ -20,17 +21,11 @@ function verifyToken(req, res, next) {
     console.log('Username found from the database.')
     // Token found from the database. Verify it.
     console.log(token)
-    console.log(retrievedToken.dataValues.token)
-    if (token === retrievedToken.dataValues.token) {
-      // This authentication method is not the best, but it works for now.
-      // TODO: Change this to JWT.
-      console.log('Token verified.')
-      req.body.username = retrievedToken.dataValues.id;
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if (err) return res.sendStatus(403);
+      req.user = user;
       next();
-    } else {
-      console.log('Token verification failed.')
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
+    });
   }).catch(error => {
     console.log('ERROR: ' + error)
     return res.status(500).json({ error: 'Unknown error' });

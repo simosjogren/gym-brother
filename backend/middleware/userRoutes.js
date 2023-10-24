@@ -8,6 +8,8 @@ const sessiontokens = require('../config/tokens_connection');
 const createNewDatatable = require('../config/new_datatable');   // This is a function.
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const path = require('path');
+require('dotenv').config(path.resolve(__dirname, '../.env'));
 
 const userRouter = express.Router();
 
@@ -73,7 +75,7 @@ userRouter.post('/users/login', async (req,res) => {
                         // Correct password. Now we create the cookie.
                         console.log('Password was correct.')
                         const secretKey = crypto.randomBytes(32).toString('hex');   // Create secret key
-                        const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
+                        const token = jwt.sign({ username: user.username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
                         console.log('Token: ' + token)
                         res.json({ token: token });
                         // Time to save the cookie to database.

@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const exphsb = require('express-handlebars');
 const path = require('path');
 const axios = require('axios');
+const { DataTypes } = require('sequelize');
 
 // Import middleware-packages
 const corsMiddleware = require('./middleware/CORS');
@@ -46,9 +47,10 @@ app.use(userRouter); // User login middleware
 app.post('/post-workout', verifyToken, async (req, res) => {
     // We send the latest workout to the python server for parsing.
     console.log('Received /post-workout command.')
-    const { latestWorkout } = req.body; // We need only this one variable.
-
-    // Lets just straight outsource the parsing to the python server.
+    const username = req.body.username;
+    const fitnessGoal = req.body.fitnessGoal;
+    const latestWorkout = req.body.latestWorkout;
+    // Send latest workout to python server for parsing.
     try {
         const response = await axios.post('http://127.0.0.1:5000/parse-input', 
         { workoutString: latestWorkout }, 
@@ -62,8 +64,34 @@ app.post('/post-workout', verifyToken, async (req, res) => {
         }
         const parsedData = response.data;
 
-        // TODO: Send the parsed workout into database.
-        // Next time the user refreshes the page, the workout is parsed in a better way.
+        // Lets connect to the user's training data table.
+        const userDataTable = db.define(username + '_trainingdata', {
+            exerciseName: {
+                type: DataTypes.STRING(32),
+                primaryKey: true,
+                allowNull: false
+            },
+            exercises: {
+                type: DataTypes.STRING(256),
+                allowNull: false
+            },
+            exerciseComments: {
+                type: DataTypes.STRING(128),
+                allowNull: true     // Can be null
+            }
+        }, { force: true });
+        const exercise_str = JSON.stringify(parsedData.exercises)   // Convert the list to str for db.
+        userDataTable.create({
+            exerciseName: parsedData.exerciseName,
+            exercises: exercise_str,
+            exerciseComments: parsedData.exerciseComments
+        }).then(newRow => {
+            console.log('New exercise row inserted in the database.')
+            res.status(201).send()  // Row created successfully.
+        }).catch(error => {
+            console.error('ERROR:', error);
+            res.status(500).send()  // Unknown error.
+        })
 
         res.json({ latestWorkout: parsedData });
     } catch (error) {
@@ -76,7 +104,9 @@ app.post('/post-workout', verifyToken, async (req, res) => {
 
 app.get('/get-workout', verifyToken, (req, res) => {
     console.log('Received /get-workout command.')
-
+    const username = req.body.username;
+    const fitnessGoal = req.body.fitnessGoal;
+    const latestWorkout = req.body.latestWorkout;
     // TODO make a query to the database which retrieves the user's last workout.
 
     res.json({ testData })
