@@ -83,11 +83,19 @@ document.getElementById('latestWorkout').addEventListener('input', function() {
 });
 
 function getWorkout() {
+    const data = {
+        username: localStorage.getItem('username'),
+    };
+
+    const token = localStorage.getItem('token');
+    
     fetch(SERVER_ADDRESS + '/get-workout', {
-        method: 'GET',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-        }
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data),
     })
     .then(response => response.json())
     .then(data => {

@@ -1,31 +1,33 @@
+// Connects to database's exercises- table.
+// Using sequence instead of raw SQL-commands will decrease the risk of SQL-injection.
+// Simo Sjögren
+
+
 const { DataTypes } = require('sequelize');
 const db = require('./connect_to_database');
 
-async function createNewDatatable(username) {
-    try {
-        console.log('Name of the user: ' + username)
-        const NewTable = db.define(username + '_trainingdata', {
-            exerciseName: {
-                type: DataTypes.STRING(32),
-                primaryKey: true,
-                allowNull: false
-            },
-            exercises: {
-                type: DataTypes.STRING(256),
-                allowNull: false
-            },
-            exerciseComments: {
-                type: DataTypes.STRING(128),
-                allowNull: true     // Can be null
-            }
-        }, { force: true });
-
-        await db.sync(); // Sync the model with the database
-
-        return NewTable;
-    } catch (error) {
-        throw new Error('Error creating datatable: ' + error.message);
+const NewTable = db.define('training_data', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+    },
+    exerciseName: {
+        type: DataTypes.STRING(32),
+        allowNull: false
+    },
+    username: {
+        type: DataTypes.STRING(32),
+        allowNull: false
+    },
+    exercises: {
+        type: DataTypes.STRING(256),
+        allowNull: false
+    },
+    comments: {
+        type: DataTypes.STRING(128),
+        allowNull: true     // Can be null
     }
-}
+});
 
-module.exports = createNewDatatable;
+module.exports = NewTable;

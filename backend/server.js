@@ -9,6 +9,7 @@ const exphsb = require('express-handlebars');
 const path = require('path');
 const axios = require('axios');
 const { DataTypes } = require('sequelize');
+const randomatic = require('randomatic');
 
 // Import middleware-packages
 const corsMiddleware = require('./middleware/CORS');
@@ -18,6 +19,8 @@ const verifyToken = require('./middleware/tokenVerification');
 // Import database-settings
 const db = require('./config/connect_to_database');
 const sessiontokens = require('./config/tokens_connection');
+const exercisetable = require('./config/new_datatable');
+const credentials = require('./config/credentials_connection');
 
 const testData = {
     'username': '123testid99',
@@ -63,31 +66,31 @@ app.post('/post-workout', verifyToken, async (req, res) => {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const parsedData = response.data;
-
-        // Lets connect to the user's training data table.
-        const userDataTable = db.define(username + '_trainingdata', {
-            exerciseName: {
-                type: DataTypes.STRING(32),
-                primaryKey: true,
-                allowNull: false
-            },
-            exercises: {
-                type: DataTypes.STRING(256),
-                allowNull: false
-            },
-            exerciseComments: {
-                type: DataTypes.STRING(128),
-                allowNull: true     // Can be null
-            }
-        }, { force: true });
         const exercise_str = JSON.stringify(parsedData.exercises)   // Convert the list to str for db.
-        userDataTable.create({
+
+        // Time to insert new row to training_data -table.
+        const exerciseId = randomatic('Aa0', 10);   // Generate a random id for the exercise.
+        console.log('Exercise id: ' + exerciseId)
+        exercisetable.create({
+            id: exerciseId,
+            username: username,
             exerciseName: parsedData.exerciseName,
             exercises: exercise_str,
-            exerciseComments: parsedData.exerciseComments
+            comments: parsedData.comment
         }).then(newRow => {
             console.log('New exercise row inserted in the database.')
-            res.status(201).send()  // Row created successfully.
+                // Time to modify user's latest workout.
+                credentials.update(
+                    { latestExercise: exerciseId },
+                    { where: { id: username } })
+                    .then(retrievedDBUser => {
+                        console.log('Modified ' + username + ' latest workout.')
+                        res.status(201).send()  // Row created successfully.
+                    })
+                    .catch(error => {
+                        console.error('ERROR:', error);
+                        res.status(500).send()  // Unknown error.
+                    })
         }).catch(error => {
             console.error('ERROR:', error);
             res.status(500).send()  // Unknown error.
@@ -102,14 +105,31 @@ app.post('/post-workout', verifyToken, async (req, res) => {
 
 
 
-app.get('/get-workout', verifyToken, (req, res) => {
+app.post('/get-workout', verifyToken, (req, res) => {
     console.log('Received /get-workout command.')
     const username = req.body.username;
     const fitnessGoal = req.body.fitnessGoal;
     const latestWorkout = req.body.latestWorkout;
     // TODO make a query to the database which retrieves the user's last workout.
 
-    res.json({ testData })
+    credentials.findOne({
+        where: { id: username }
+    }).then(retrievedDBUser => {
+        if (retrievedDBUser) {
+            console.log('Found user from the database.')
+            exercisetable.findOne({
+                where: { id: retrievedDBUser.latestExercise }
+            }).then(retrievedExercise => {
+                if (retrievedExercise) {
+                    console.log('Found exercise from the database.')
+                    res.json({ latestWorkout: retrievedExercise })
+                } else {
+                    console.log('Did not find the exercise.')
+                }
+            })
+        } else {
+            console.log('Did not find the user.')
+        }})
 });
 
 

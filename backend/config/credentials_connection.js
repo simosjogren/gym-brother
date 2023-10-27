@@ -14,6 +14,10 @@ const dbCredentials = db.define('credentials', {
   password: {
     type: DataTypes.STRING(30),
     allowNull: false
+  },
+  latestExercise: {
+    type: DataTypes.STRING(30),
+    allowNull: false
   }
 });
 

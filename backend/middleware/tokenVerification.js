@@ -23,6 +23,7 @@ function verifyToken(req, res, next) {
     console.log(token)
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) return res.sendStatus(403);
+      console.log('Token verified.')
       req.user = user;
       next();
     });

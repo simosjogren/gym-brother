@@ -1,14 +1,15 @@
 // Middleware for the login-functionality
 // Simo Sjögren
 
-const express = require('express');
-const bcrypt = require('bcrypt');
 const credentials = require('../config/credentials_connection');
 const sessiontokens = require('../config/tokens_connection');
-const createNewDatatable = require('../config/new_datatable');   // This is a function.
+
+const express = require('express');
+const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+
 require('dotenv').config(path.resolve(__dirname, '../.env'));
 
 const userRouter = express.Router();
@@ -31,9 +32,9 @@ userRouter.post('/users', async (req,res) => {
                 // Inserts user's hashed credentials in to the database.
                 credentials.create({
                     id: user.username,
-                    password: user.password
+                    password: user.password,
+                    lastestExercise: '1234567890'   // Dummy value
                 }).then(createdUser => {
-                    createNewDatatable(user.username)
                     console.log('New user table created.')
                     res.status(201).send()  // User created successfully.
                 }).catch(error => {
@@ -82,7 +83,7 @@ userRouter.post('/users/login', async (req,res) => {
                         sessiontokens.findOrCreate({
                             where: { id: user.username },
                             defaults: { token: token }
-                          }).then(([tokenRecord, created]) => {
+                        }).then(([tokenRecord, created]) => {
                             if (!created) {
                               // Token already existed, update it
                               tokenRecord.update({ token: token })
