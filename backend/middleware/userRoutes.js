@@ -33,7 +33,7 @@ userRouter.post('/users', async (req,res) => {
                 credentials.create({
                     id: user.username,
                     password: user.password,
-                    lastestExercise: '1234567890'   // Dummy value
+                    latestExercise: '1234567890'   // Dummy value
                 }).then(createdUser => {
                     console.log('New user table created.')
                     res.status(201).send()  // User created successfully.

@@ -41,3 +41,16 @@ button:hover {
 .hidden {
     display: none;
 }
+
+#loggedInBar {
+    margin-top: 20px;
+}
+
+#loggedInBar p {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+#loggedInBar button {
+    background-color: #f44336;
+}

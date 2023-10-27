@@ -13,12 +13,54 @@ function showLogin() {
     document.getElementById('createAccountForm').classList.add('hidden');
 }
 
+function showNotLoggedIn() {
+    const loggedInBar = document.getElementById('loggedInBar');
+    loggedInBar.classList.remove('hidden');
+    const loggedInUsername = document.getElementById('loggedInUsername');
+    loggedInUsername.textContent = "Not Logged In";
+    const logoutButton = document.getElementById('logoutButton');
+    logoutButton.classList.add('hidden');
+}
+
 function showCreateAccount() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('createAccountForm').classList.remove('hidden');
 }
 
-// Function to handle login form submission
+function handleLoginSuccess(username) {
+    const loggedInBar = document.getElementById('loggedInBar');
+    const loggedInUsername = document.getElementById('loggedInUsername');
+    loggedInUsername.textContent = username;
+    loggedInBar.classList.remove('hidden');
+    const logoutButton = document.getElementById('logoutButton');
+    logoutButton.classList.remove('hidden'); // Show logout button on successful login
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    showNotLoggedIn();
+    document.getElementById('loginOptions').classList.remove('hidden');
+}
+
+window.onload = function() {
+    const username = localStorage.getItem('username');
+    if (username) {
+        handleLoginSuccess(username);
+    } else {
+        showNotLoggedIn();
+    }
+};
+
+window.onload = function() {
+    const username = localStorage.getItem('username');
+    if (username) {
+        handleLoginSuccess(username);
+    } else {
+        showNotLoggedIn(); // If not logged in, show "Not Logged In"
+    }
+};
+
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
     const username = document.getElementById('username').value;
@@ -27,7 +69,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
         'username': username,
         'password': password
     };
-    // Time to send the create-account request to the server
+
     fetch(SERVER_ADDRESS + '/users/login', {
         method: 'POST',
         headers: {
@@ -37,21 +79,21 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Failed to log in'); // Catch block
+            throw new Error('Failed to log in'); 
         } else {
-            return response.json(); // Return the promise
+            return response.json(); 
         }
     })
-    .then(token => { // Use the resolved token
+    .then(token => {
         localStorage.setItem('token', token.token);
         localStorage.setItem('username', credentials.username);
+        handleLoginSuccess(credentials.username);
     })
     .catch(error => {
         console.error('Error:', error);
     });
 });
 
-// Function to handle create account form submission
 document.getElementById('createAccountForm').addEventListener('submit', function(event) {
     event.preventDefault();
     const newUsername = document.getElementById('newUsername').value;
@@ -60,7 +102,7 @@ document.getElementById('createAccountForm').addEventListener('submit', function
         'username': newUsername,
         'password': newPassword
     };
-    // Time to send the create-account request to the server
+
     fetch(SERVER_ADDRESS + '/users', {
         method: 'POST',
         headers: {
@@ -71,6 +113,7 @@ document.getElementById('createAccountForm').addEventListener('submit', function
     .then(response => response.status)
     .then(data => {
         console.log(data);
+        handleLoginSuccess(credentials.username);
     })
     .catch(error => {
         console.error('Error:', error);

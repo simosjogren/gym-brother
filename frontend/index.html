@@ -8,6 +8,10 @@
 </head>
 <body>
     <div class="container">
+        <div id="loggedInBar" class="hidden">
+            <p>Welcome, </p><span id="loggedInUsername"></span>
+            <button id="logoutButton" onclick="logout()" class="hidden">Logout</button>
+        </div>
         <h1>Gym Brother</h1>
         <div id="loginOptions">
             <button onclick="showLogin()">Login</button>
