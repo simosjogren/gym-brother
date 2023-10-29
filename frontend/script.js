@@ -126,23 +126,20 @@ document.getElementById('latestWorkout').addEventListener('input', function() {
 });
 
 function getWorkout() {
-    const data = {
-        username: localStorage.getItem('username'),
-    };
-
-    const token = localStorage.getItem('token');
-    
     fetch(SERVER_ADDRESS + '/get-workout', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({username: localStorage.getItem('username')}),
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Retrieved the new workout from the database:', data);
+        if (data) {
+            console.log('Retrieved the new workout from the database:', data);
+        }
+
         document.getElementById('workoutResult').classList.remove('hidden');
     })
     .catch(error => {
@@ -171,12 +168,18 @@ function postWorkout() {
         },
         body: JSON.stringify(data),
     })
-    .then(response => response.json())
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Network response was not ok');
+        }
+    })
     .then(data => {
         const now = new Date();
         savedTime.textContent = now.toLocaleString();
         savedMessage.classList.remove('hidden');
-        console.log('Saved workout-data to the database:', data.latestWorkout);
+        console.log('Saved workout-data to the database:', data);
     })
     .catch(error => {
         console.error('Error:', error);

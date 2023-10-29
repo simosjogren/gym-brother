@@ -48,61 +48,69 @@ app.use(corsMiddleware); // CORS middleware
 app.use(userRouter); // User login middleware
 
 app.post('/post-workout', verifyToken, async (req, res) => {
-    // We send the latest workout to the python server for parsing.
     console.log('Received /post-workout command.')
     const username = req.body.username;
     const fitnessGoal = req.body.fitnessGoal;
     const latestWorkout = req.body.latestWorkout;
+    
     // Send latest workout to python server for parsing.
     try {
         const response = await axios.post('http://127.0.0.1:5000/parse-input', 
-        { workoutString: latestWorkout }, 
-        { headers: {
-                'Content-Type': 'application/json',
+          { workoutString: latestWorkout }, 
+          { headers: {
+              'Content-Type': 'application/json',
             },
-        });
+          });
+        
+        if (response.status === 500) {
+          res.status(500).send( {'error': 'Backend wasnt able to handle the given string.'} );
+        } else {
+          // Python server returned a valid response.
+          const parsedData = response.data;
+          let number_of_rows = 0;
+          let promises = [];
 
-        if (response.status !== 200) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+          for (let i = 0; i < parsedData.training.length; i++) {
+            const current_workout = parsedData.training[i];
+            const exerciseId = randomatic('Aa0', 10); 
+
+            const createPromise = exercisetable.create({
+              id: exerciseId,
+              username: username,
+              exerciseName: current_workout.exerciseName,
+              exercises: JSON.stringify(current_workout.exercises),
+              comments: current_workout.comment
+            });
+
+            promises.push(createPromise);
+
+            createPromise.then(newRow => {
+              number_of_rows++;
+              return credentials.update(
+                { latestExercise: exerciseId },
+                { where: { id: username } }
+              );
+            }).catch(error => {
+              console.error('ERROR 1:', error);
+              res.status(500).send();  
+            });
+          }
+
+          Promise.all(promises)
+            .then(() => {
+              console.log('Inserted total of ' + number_of_rows + ' rows to the database.');
+              res.status(201).json(parsedData.training).send(); 
+            })
+            .catch(error => {
+              console.error('ERROR 2:', error);
+              res.status(500).send();  
+            });
         }
-        const parsedData = response.data;
-        const exercise_str = JSON.stringify(parsedData.exercises)   // Convert the list to str for db.
-
-        // Time to insert new row to training_data -table.
-        const exerciseId = randomatic('Aa0', 10);   // Generate a random id for the exercise.
-        console.log('Exercise id: ' + exerciseId)
-        exercisetable.create({
-            id: exerciseId,
-            username: username,
-            exerciseName: parsedData.exerciseName,
-            exercises: exercise_str,
-            comments: parsedData.comment
-        }).then(newRow => {
-            console.log('New exercise row inserted in the database.')
-                // Time to modify user's latest workout.
-                credentials.update(
-                    { latestExercise: exerciseId },
-                    { where: { id: username } })
-                    .then(retrievedDBUser => {
-                        console.log('Modified ' + username + ' latest workout.')
-                        res.status(201).send()  // Row created successfully.
-                    })
-                    .catch(error => {
-                        console.error('ERROR:', error);
-                        res.status(500).send()  // Unknown error.
-                    })
-        }).catch(error => {
-            console.error('ERROR:', error);
-            res.status(500).send()  // Unknown error.
-        })
-
-        res.json({ latestWorkout: parsedData });
-    } catch (error) {
-        console.error('Error:', error);
+      } catch (error) {
+        console.error('ERROR 3: ', error);
         res.status(500).json({ error: 'Internal Server Error' });
-    }
+      }
 });
-
 
 
 app.post('/get-workout', verifyToken, (req, res) => {
