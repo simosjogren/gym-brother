@@ -6,7 +6,7 @@
 const { DataTypes } = require('sequelize');
 const db = require('./connect_to_database');
 
-const NewTable = db.define('training_data', {
+const exercises = db.define('training_data', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -30,4 +30,4 @@ const NewTable = db.define('training_data', {
     }
 });
 
-module.exports = NewTable;
+module.exports = exercises;

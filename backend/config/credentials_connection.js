@@ -16,7 +16,7 @@ const dbCredentials = db.define('credentials', {
     allowNull: false
   },
   latestExercise: {
-    type: DataTypes.STRING(30),
+    type: DataTypes.STRING(256),
     allowNull: false
   }
 });
