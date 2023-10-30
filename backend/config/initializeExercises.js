@@ -4,7 +4,7 @@
 
 
 const { DataTypes } = require('sequelize');
-const db = require('./connect_to_database');
+const db = require('./connectDatabase');
 
 const exercises = db.define('training_data', {
     id: {

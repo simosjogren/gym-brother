@@ -1,8 +1,8 @@
 // Middleware for the login-functionality
 // Simo Sjögren
 
-const credentials = require('../config/credentials_connection');
-const sessiontokens = require('../config/tokens_connection');
+const credentials = require('../config/initalizeCredentials');
+const sessiontokens = require('../config/initializeSessionTokens');
 
 const express = require('express');
 const bcrypt = require('bcrypt');

@@ -1,20 +1,24 @@
-// Connects to database's tokens table.
+// Connection config file for user authentication.
 // Using sequence instead of raw SQL-commands will decrease the risk of SQL-injection.
 // Simo Sjögren
 
 const { DataTypes } = require('sequelize');
-const db = require('./connect_to_database');
+const db = require('./connectDatabase');
 
-const dbTokens = db.define('sessiontokens', {
+const dbCredentials = db.define('credentials', {
   id: {
     type: DataTypes.STRING(30),
     primaryKey: true,
     allowNull: false
   },
-  token: {
+  password: {
     type: DataTypes.STRING(30),
+    allowNull: false
+  },
+  latestExercise: {
+    type: DataTypes.STRING(256),
     allowNull: false
   }
 });
 
-module.exports = dbTokens;
+module.exports = dbCredentials;

@@ -2,7 +2,7 @@
 // Simo Sjögren
 
 const jwt = require('jsonwebtoken');
-const sessiontokens = require('../config/tokens_connection');
+const sessiontokens = require('../config/initializeSessionTokens');
 
 function verifyToken(req, res, next) {
   const username = req.body.username
