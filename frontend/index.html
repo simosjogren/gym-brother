@@ -1,59 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym Brother</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </head>
-<body>
-    <div class="container">
+
+<body class="bg-light d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <div class="container text-center p-4">
         <div id="loggedInBar" class="hidden">
-            <p>Welcome, </p><span id="loggedInUsername"></span>
-            <button id="logoutButton" onclick="logout()" class="hidden">Logout</button>
+            <p id="loggedInMessage"></p>
+            <button id="logoutButton" onclick="logout()" class="btn btn-danger">Logout</button>
         </div>
-        <h1>Gym Brother</h1>
-        <div id="loginOptions">
-            <button onclick="showLogin()">Login</button>
-            <button onclick="showCreateAccount()">Create Account</button>
+        <h1 class="mb-4">Gym Brother</h1>
+        <div id="loginOptions" class="mb-4">
+            <button onclick="showLogin()" class="btn btn-primary me-2">Login</button>
+            <button onclick="showCreateAccount()" class="btn btn-success">Create Account</button>
         </div>
 
         <form id="loginForm" class="hidden">
-            <label for="username">Username:</label>
-            <input type="text" id="username" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" required><br><br>
-            <button type="submit">Login</button>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <button id="loginButton" type="submit" class="btn btn-primary">Login</button>
         </form>
 
         <form id="createAccountForm" class="hidden">
-            <label for="newUsername">Username:</label>
-            <input type="text" id="newUsername" required>
-            <label for="newPassword">Password:</label>
-            <input type="password" id="newPassword" required><br><br>
-            <button type="submit">Create Account</button>
+            <div class="mb-3">
+                <label for="newUsername" class="form-label">Username:</label>
+                <input type="text" class="form-control" id="newUsername" required>
+            </div>
+            <div class="mb-3">
+                <label for="newPassword" class="form-label">Password:</label>
+                <input type="password" class="form-control" id="newPassword" required>
+            </div>
+            <div class="mb-3">
+                <label for="retypePassword" class="form-label">Retype password:</label>
+                <input type="password" class="form-control" id="retypePassword" required>
+            </div>
+            <button type="submit" class="btn btn-success">Create Account</button>
         </form>
 
         <form id="workoutForm">
-            <label for="fitnessGoal">Fitness Goal:</label>
-            <select id="fitnessGoal" required>
-                <option value="weightLoss">Weight Loss</option>
-                <option value="muscleGain">Muscle Gain</option>
-                <option value="endurance">Endurance</option>
-            </select>
-    
-            <label for="latestWorkout">Write your current workout:</label>
-            <textarea id="latestWorkout" rows="20" cols="40"></textarea>
+            <div class="mb-3">
+                <label for="fitnessGoal" class="form-label">Fitness Goal:</label>
+                <select class="form-select" id="fitnessGoal" required>
+                    <option value="weightLoss">Weight Loss</option>
+                    <option value="muscleGain">Muscle Gain</option>
+                    <option value="endurance">Endurance</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="latestWorkout" class="form-label">Write your current workout:</label>
+                <textarea class="form-control" id="latestWorkout" rows="5"></textarea>
+            </div>
             <div id="workoutSavedMessage" class="hidden">Workout saved at <span id="savedTime"></span></div>
-            <button type="button" onclick="getWorkout()">Retrieve new workout</button>
+            <button type="button" onclick="getWorkout()" class="btn btn-info">Retrieve new workout</button>
         </form>
 
-        <div id="workoutResult" class="hidden">
+        <div id="workoutResult" class="hidden mt-4">
             <h2>Generated Workout</h2>
-            <ul id="workoutList"></ul>
+            <ul id="workoutList" class="list-unstyled"></ul>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>

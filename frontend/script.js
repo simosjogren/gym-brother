@@ -1,12 +1,5 @@
-// Frontend scripts for the gym-bro
-// Simo Sjögren
-
 const SERVER_ADDRESS = 'http://localhost:3000';
 let typingTimer;
-
-const userData = {
-    'username': '123testid99',
-}
 
 function showLogin() {
     document.getElementById('loginForm').classList.remove('hidden');
@@ -16,10 +9,14 @@ function showLogin() {
 function showNotLoggedIn() {
     const loggedInBar = document.getElementById('loggedInBar');
     loggedInBar.classList.remove('hidden');
-    const loggedInUsername = document.getElementById('loggedInUsername');
-    loggedInUsername.textContent = "Not Logged In";
+    const loggedInMessage = document.getElementById('loggedInMessage');
+    loggedInMessage.textContent = "Not Logged In";
     const logoutButton = document.getElementById('logoutButton');
     logoutButton.classList.add('hidden');
+
+    // Show login and create account options
+    const loginOptions = document.getElementById('loginOptions');
+    loginOptions.classList.remove('hidden');
 }
 
 function showCreateAccount() {
@@ -29,18 +26,35 @@ function showCreateAccount() {
 
 function handleLoginSuccess(username) {
     const loggedInBar = document.getElementById('loggedInBar');
-    const loggedInUsername = document.getElementById('loggedInUsername');
-    loggedInUsername.textContent = username;
+    const loggedInMessage = document.getElementById('loggedInMessage');
+    loggedInMessage.textContent = "Welcome, " + username;
     loggedInBar.classList.remove('hidden');
     const logoutButton = document.getElementById('logoutButton');
     logoutButton.classList.remove('hidden'); // Show logout button on successful login
+
+    // Hide login and create account forms and buttons
+    const loginForm = document.getElementById('loginForm');
+    const createAccountForm = document.getElementById('createAccountForm');
+    loginForm.classList.add('hidden');
+    createAccountForm.classList.add('hidden');
+    // Hide login options
+
+    const loginOptions = document.getElementById('loginOptions');
+    loginOptions.classList.add('hidden');
+
+    // Clear the content of the forms
+    loginForm.reset();
+    createAccountForm.reset();
 }
 
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     showNotLoggedIn();
-    document.getElementById('loginOptions').classList.remove('hidden');
+
+    // Show login and create account options
+    const loginOptions = document.getElementById('loginOptions');
+    loginOptions.classList.remove('hidden');
 }
 
 window.onload = function() {
@@ -49,15 +63,6 @@ window.onload = function() {
         handleLoginSuccess(username);
     } else {
         showNotLoggedIn();
-    }
-};
-
-window.onload = function() {
-    const username = localStorage.getItem('username');
-    if (username) {
-        handleLoginSuccess(username);
-    } else {
-        showNotLoggedIn(); // If not logged in, show "Not Logged In"
     }
 };
 
@@ -71,53 +76,60 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     };
 
     fetch(SERVER_ADDRESS + '/users/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to log in'); 
-        } else {
-            return response.json(); 
-        }
-    })
-    .then(token => {
-        localStorage.setItem('token', token.token);
-        localStorage.setItem('username', credentials.username);
-        handleLoginSuccess(credentials.username);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(credentials),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to log in');
+            } else {
+                return response.json();
+            }
+        })
+        .then(token => {
+            localStorage.setItem('token', token.token);
+            localStorage.setItem('username', credentials.username);
+            handleLoginSuccess(credentials.username);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 });
 
 document.getElementById('createAccountForm').addEventListener('submit', function(event) {
     event.preventDefault();
     const newUsername = document.getElementById('newUsername').value;
     const newPassword = document.getElementById('newPassword').value;
+    const retypePassword = document.getElementById('retypePassword').value;
+
+    if (newPassword !== retypePassword) {
+        alert("Passwords do not match");
+        return;
+    }
+
     const credentials = {
         'username': newUsername,
         'password': newPassword
     };
 
     fetch(SERVER_ADDRESS + '/users', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-    })
-    .then(response => response.status)
-    .then(data => {
-        console.log(data);
-        handleLoginSuccess(credentials.username);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(credentials),
+        })
+        .then(response => response.status)
+        .then(data => {
+            console.log(data);
+            showLogin(); // Show the login form after successful account creation
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 });
 
 document.getElementById('latestWorkout').addEventListener('input', function() {
@@ -127,24 +139,26 @@ document.getElementById('latestWorkout').addEventListener('input', function() {
 
 function getWorkout() {
     fetch(SERVER_ADDRESS + '/get-workout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({username: localStorage.getItem('username')}),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data) {
-            console.log('Retrieved the new workout from the database:', data);
-        }
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                username: localStorage.getItem('username')
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                console.log('Retrieved the new workout from the database:', data);
+            }
 
-        document.getElementById('workoutResult').classList.remove('hidden');
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+            document.getElementById('workoutResult').classList.remove('hidden');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
 function postWorkout() {
@@ -159,31 +173,31 @@ function postWorkout() {
     };
 
     const token = localStorage.getItem('token');
-    
+
     fetch(SERVER_ADDRESS + '/post-workout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data),
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error('Network response was not ok');
-        }
-    })
-    .then(data => {
-        const now = new Date();
-        savedTime.textContent = now.toLocaleString();
-        savedMessage.classList.remove('hidden');
-        console.log('Saved workout-data to the database:', data);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Network response was not ok');
+            }
+        })
+        .then(data => {
+            const now = new Date();
+            savedTime.textContent = now.toLocaleString();
+            savedMessage.classList.remove('hidden');
+            console.log('Saved workout-data to the database:', data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
 document.getElementById('workoutForm').addEventListener('submit', function(event) {

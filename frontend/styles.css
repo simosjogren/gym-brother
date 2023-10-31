@@ -42,6 +42,10 @@ button:hover {
     display: none;
 }
 
+#logoutButton.hidden {
+    display: none;
+}
+
 #loggedInBar {
     margin-top: 20px;
 }
@@ -49,8 +53,4 @@ button:hover {
 #loggedInBar p {
     display: inline-block;
     margin-right: 10px;
-}
-
-#loggedInBar button {
-    background-color: #f44336;
 }
