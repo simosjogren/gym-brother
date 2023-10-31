@@ -35,6 +35,35 @@ db.sync()
     });
 
 
+function displayableFormatConverter(exerciseList) {
+    // We convert the JSON received from python backend into a displayable format in JS.
+        let displayableString = "";
+        for (let n = 0; n < exerciseList.length; n++) {
+            displayableString += exerciseList[n].exerciseName + ": ";
+            const current_exercise = JSON.parse(exerciseList[n].exercises);
+            for (let i = 0; i < current_exercise.length; i++) {
+                console.log(current_exercise[i])    
+                if (current_exercise[i].both_sides) {
+                    displayableString += current_exercise[i].weights + '+' + current_exercise[i].weights;
+                } else {
+                    displayableString += current_exercise[i].weights;
+                }
+                displayableString += ', ';
+                displayableString += current_exercise[i].reps[0];
+                for (let m = 1; m < current_exercise[i].reps.length; m++) {
+                    displayableString += '/';
+                    displayableString += current_exercise[i].reps[m];
+                }
+                if (current_exercise[i].comments !== "") {
+                    displayableString += ', ';
+                    displayableString += exerciseList[n].comments;
+                }
+            }
+            displayableString += '\n';
+        }
+        return displayableString;
+}
+
 const app = express();
 app.use(bodyParser.json());
 app.use(corsMiddleware); // CORS middleware
@@ -78,32 +107,48 @@ app.post('/post-workout', verifyToken, async (req, res) => {
 });
 
 
-app.post('/get-workout', verifyToken, (req, res) => {
-    console.log('Received /get-workout command.')
+app.post('/get-workout', verifyToken, async (req, res) => {
+    console.log('Received /get-workout command.');
     const username = req.body.username;
     const fitnessGoal = req.body.fitnessGoal;
     const latestWorkout = req.body.latestWorkout;
-    // TODO make a query to the database which retrieves the user's last workout.
 
-    credentials.findOne({
-        where: { id: username }
-    }).then(retrievedDBUser => {
+    try {
+        const retrievedDBUser = await credentials.findOne({
+            where: { id: username }
+        });
+
         if (retrievedDBUser) {
-            console.log('Found user from the database.')
-            exercisetable.findOne({
-                where: { id: retrievedDBUser.latestExercise }
-            }).then(retrievedExercise => {
+            console.log('Found user from the database.');
+            const latestExercises = JSON.parse(retrievedDBUser.latestExercise);
+            let exerciseList = [];
+
+            for (let n = 0; n < latestExercises.length; n++) {
+                const retrievedExercise = await exercisetable.findOne({
+                    where: { id: latestExercises[n] }
+                });
+                const retrievedExerciseData = retrievedExercise.dataValues
                 if (retrievedExercise) {
-                    console.log('Found exercise from the database.')
-                    res.json({ latestWorkout: retrievedExercise })
+                    console.log('Found exercise ' + latestExercises[n] + ' from the database.');
+                    exerciseList.push(retrievedExerciseData);
+                    console.log('Retrieved exercise: ', retrievedExerciseData);
                 } else {
-                    console.log('Did not find the exercise.')
+                    console.log('Did not find the exercise.');
                 }
-            })
+            }
+            const exerciseListString = displayableFormatConverter(exerciseList);
+            // Now we should have all the exercise data in the exerciseList.
+            res.status(201).json(exerciseListString).send();
         } else {
-            console.log('Did not find the user.')
-        }})
+            console.log('Did not find the user.');
+            res.status(404).json({ error: 'User not found' }).send();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Internal Server Error' }).send();
+    }
 });
+
 
 
 app.get('/upgrade-workout', verifyToken, (req, res) => {

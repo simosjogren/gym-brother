@@ -17,6 +17,8 @@ function showNotLoggedIn() {
     // Show login and create account options
     const loginOptions = document.getElementById('loginOptions');
     loginOptions.classList.remove('hidden');
+
+    document.getElementById('latestWorkout').disabled = true;
 }
 
 function showCreateAccount() {
@@ -45,6 +47,10 @@ function handleLoginSuccess(username) {
     // Clear the content of the forms
     loginForm.reset();
     createAccountForm.reset();
+
+    document.getElementById('latestWorkout').disabled = false;
+
+    getWorkout();   // Lets update the workout to the screen.
 }
 
 function logout() {
@@ -55,6 +61,7 @@ function logout() {
     // Show login and create account options
     const loginOptions = document.getElementById('loginOptions');
     loginOptions.classList.remove('hidden');
+    document.getElementById('latestWorkout').value = '';
 }
 
 window.onload = function() {
@@ -151,10 +158,11 @@ function getWorkout() {
         .then(response => response.json())
         .then(data => {
             if (data) {
-                console.log('Retrieved the new workout from the database:', data);
+                // Lets update the textbox accordinly:
+                document.getElementById('latestWorkout').value = data;
+            } else {
+                console.log('Did not find any workout data for the user.')
             }
-
-            document.getElementById('workoutResult').classList.remove('hidden');
         })
         .catch(error => {
             console.error('Error:', error);
