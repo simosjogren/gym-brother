@@ -3,41 +3,33 @@
 # Author: Simo Sjögren
 
 from flask import Flask, request, jsonify
+from tools.inputParsingTools import basicStringHandling, weightHandling, repsHandling
 
 app = Flask(__name__)
 
 def input_parser(workouts_in_string):
 
     try:
-        workoutlist_raw = workouts_in_string.split('\n')
         workoutlist_final = []
 
+        # Row splitting
+        workoutlist_raw = workouts_in_string.split('\n')
+        
         # We perform same operations for each workout
         for workoutstring in workoutlist_raw:
 
             # TODO inspection if there are multiple weights used in the exercise
             
             # Basic string handling
-            workoutstring = workoutstring.replace(" ", "")
-            strippedString = workoutstring.split(":")
-            exerciseName = strippedString[0]
-            exerciseData_string = strippedString[1]
-            exerciseData_raw = exerciseData_string.split(",")
+            exerciseName, exerciseData_raw = basicStringHandling(workoutstring)
+            if exerciseName == False:
+                continue    # Skip empty rows
 
             # Weight handling
-            weights = exerciseData_raw[0]
-            both_sides = False  # Default value
-            # If weights are in the format 80+80, we need to split them
-            if ('+' in weights):
-                weights = weights.split("+")[0]
-                weights = float(weights)
-                both_sides = True
+            weights, both_sides = weightHandling(exerciseData_raw)
             
             # Reps handling
-            reps_str = exerciseData_raw[1]
-            reps = reps_str.split("/")
-            for i in range(len(reps)):
-                reps[i] = int(reps[i])
+            reps = repsHandling(exerciseData_raw)
 
             # Comment handling
             try: 

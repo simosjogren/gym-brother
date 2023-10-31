@@ -3,13 +3,8 @@
 
 // Import regular packages
 const express = require('express');
-const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
-const exphsb = require('express-handlebars');
-const path = require('path');
 const axios = require('axios');
-const { DataTypes } = require('sequelize');
-const randomatic = require('randomatic');
 
 // Import middleware-packages
 const corsMiddleware = require('./middleware/CORS');
@@ -18,17 +13,12 @@ const verifyToken = require('./middleware/tokenVerification');
 
 // Import database-settings
 const db = require('./config/connectDatabase');
-const sessiontokens = require('./config/initializeSessionTokens');
 const exercisetable = require('./config/initializeExercises');
 const credentials = require('./config/initalizeCredentials');
 
 // Import controller functions
 const { getLatestWorkoutData, createAndEditExerciseData, adjustLastExercises } = require('./controllers/workoutPostMethods');
 
-const testData = {
-    'username': '123testid99',
-    'exercises': ['lat pulldown', 'bench press', 'squat']
-}
 
 // Test the database-connection status
 db.authenticate()
@@ -55,8 +45,6 @@ app.post('/post-workout', verifyToken, async (req, res) => {
   const username = req.body.username;
   const fitnessGoal = req.body.fitnessGoal;
   const latestWorkout = req.body.latestWorkout;
-
-  // TODO: 
   
   // Send latest workout to python server for parsing.
   try {
