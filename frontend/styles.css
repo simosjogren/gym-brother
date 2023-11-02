@@ -2,11 +2,11 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0 auto;
-    max-width: 600px;
+    max-width: 800px; /* Increased max-width for larger screens */
     padding: 20px;
 }
 
-.container {
+.container-fluid {
     border: 2px solid #ccc;
     padding: 20px;
     border-radius: 10px;
@@ -20,12 +20,6 @@ label, select, textarea {
 }
 
 button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
     font-size: 16px;
 }
 

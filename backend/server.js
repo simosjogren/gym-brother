@@ -35,6 +35,93 @@ db.sync()
     });
 
 
+function inputParser(workouts_in_string) {
+    try {
+        const workoutlist_final = [];
+
+        // Row splitting
+        const workoutlist_raw = workouts_in_string.split('\n');
+
+        // We perform same operations for each workout
+        workoutlist_raw.forEach(workoutstring => {
+            // TODO inspection if there are multiple weights used in the exercise
+
+            // Basic string handling
+            const { exerciseName, exerciseData_raw } = basicStringHandling(workoutstring);
+            if (!exerciseName) {
+                return; // Skip empty rows
+            }
+
+            // Weight handling
+            const { weights, both_sides } = weightHandling(exerciseData_raw);
+
+            // Reps handling
+            const reps = repsHandling(exerciseData_raw);
+
+            // Comment handling
+            const comment = exerciseData_raw[2] || "";
+
+            // Create the JSON object
+            const parsedData = {
+                exerciseName,
+                exercises: [{
+                    weights,
+                    both_sides,
+                    reps
+                }],
+                comment
+            };
+
+            // Add it into the all workouts list
+            workoutlist_final.push(parsedData);
+        });
+
+        return workoutlist_final;
+    } catch (error) {
+        return [];
+    }
+}
+
+function basicStringHandling(workoutstring) {
+    workoutstring = workoutstring.replace(" ", "");
+    if (workoutstring === "") {
+        console.log('Found empty row.');
+        return [false, false]; // Skip empty rows
+    }
+
+    const strippedString = workoutstring.split(":");
+    if (strippedString.length === 2 && strippedString[1] === "") {
+        return [false, false]; // This means that it is a headliner row, skip it
+    }
+
+    const exerciseName = strippedString[0];
+    const exerciseData_string = strippedString[1];
+    const exerciseData_raw = exerciseData_string.split(",");
+    return { exerciseName, exerciseData_raw };
+}
+
+function weightHandling(exerciseData_raw) {
+    let weights = exerciseData_raw[0];
+    let both_sides = false; // Default value
+
+    // If weights are in the format 80+80, we need to split them
+    if (weights.includes('+')) {
+        weights = weights.replace(" ", "").split("+")[0];
+        weights = parseFloat(weights);
+        both_sides = true;
+    }
+
+    return { weights, both_sides };
+}
+
+function repsHandling(exerciseData_raw) {
+    let reps_str = exerciseData_raw[1];
+    reps_str = reps_str.replace(" ", "");
+    const reps = reps_str.split("/").map(rep => parseInt(rep, 10));
+    return reps;
+}
+    
+
 function displayableFormatConverter(exerciseList) {
     // We convert the JSON received from python backend into a displayable format in JS.
         let displayableString = "";
@@ -75,36 +162,23 @@ app.post('/post-workout', verifyToken, async (req, res) => {
   const latestWorkout = req.body.latestWorkout;
   
   // Send latest workout to python server for parsing.
-  try {
-      const response = await axios.post('http://127.0.0.1:5000/parse-input', 
-        { workoutString: latestWorkout }, 
-        { headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-      
-      if (response.status === 500) {
-        const errortext = 'Python-backend wasnt able to handle the given string.';
-        console.error(errortext);
-        res.status(500).json({'error': errortext}).send();
-      } else {          
-        // Python server returned a valid response.
-        const new_exercises = response.data.training;
-        console.log('Received parsed data from python server:', new_exercises);
+    try {     
+        const parsedInput = inputParser(latestWorkout);
+        if (parsedInput.length === 0) {
+            throw new Error('Data is not in a valid format.');
+        }
         getLatestWorkoutData(username).then(async (old_exercises)=>{
             console.log('Found exercises from last times:' + old_exercises);
-            const { newIdList, oldIdList } = await createAndEditExerciseData(new_exercises, old_exercises, username);
+            const { newIdList, oldIdList } = await createAndEditExerciseData(parsedInput, old_exercises, username);
             console.log('New exercise IDs: ' + newIdList);
             console.log('Old exercise IDs: ' + oldIdList);
             // Then we are gonna synchronize the latest exercises for the user's credentials latestExercise part.
             adjustLastExercises(newIdList, oldIdList, username)
-            res.status(201).json(new_exercises).send();
+            res.status(201).json(parsedInput).send();
         });
-      }
     } catch (error) {
-        const errortext = 'Error: Data is not in a valid format.';
-        console.error(errortext);
-        res.status(500).json({ error: errortext }).send();
+        console.error(error);
+        res.status(500).json({ error: error }).send();
     }
 });
 
@@ -149,7 +223,6 @@ app.post('/get-workout', verifyToken, async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' }).send();
     }
 });
-
 
 
 app.get('/upgrade-workout', verifyToken, (req, res) => {

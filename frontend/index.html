@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Gym Brother</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -11,7 +11,7 @@
 </head>
 
 <body class="bg-light d-flex flex-column justify-content-center align-items-center min-vh-100">
-    <div class="container text-center p-4">
+    <div class="container-fluid text-center p-4">
         <div id="loggedInBar" class="hidden">
             <p id="loggedInMessage"></p>
             <button id="logoutButton" onclick="logout()" class="btn btn-danger">Logout</button>
@@ -23,13 +23,15 @@
         </div>
 
         <form id="loginForm" class="hidden">
-            <div class="mb-3">
-                <label for="username" class="form-label">Username:</label>
-                <input type="text" class="form-control" id="username" required>
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password:</label>
-                <input type="password" class="form-control" id="password" required>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
             </div>
             <button id="loginButton" type="submit" class="btn btn-primary">Login</button>
         </form>
@@ -61,7 +63,7 @@
         <form id="workoutForm">
             <div class="mb-3">
                 <label for="latestWorkout" class="form-label">Write your current workout:</label>
-                <textarea class="form-control" id="latestWorkout" rows="5"></textarea>
+                <textarea class="form-control" id="latestWorkout" rows="12"></textarea>
             </div>
             <div id="workoutSavedMessage" class="hidden"><span id="savedTime"></span></div>
             <button type="button" onclick="getWorkout()" class="btn btn-info">Retrieve new workout</button>
