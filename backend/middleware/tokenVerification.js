@@ -20,7 +20,6 @@ function verifyToken(req, res, next) {
     }
     console.log('Username found from the database.')
     // Token found from the database. Verify it.
-    console.log(token)
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
       if (err) return res.sendStatus(403);
       console.log('Token verified.')

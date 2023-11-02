@@ -72,7 +72,6 @@ app.use(userRouter); // User login middleware
 app.post('/post-workout', verifyToken, async (req, res) => {
   console.log('Received /post-workout command.')
   const username = req.body.username;
-  const fitnessGoal = req.body.fitnessGoal;
   const latestWorkout = req.body.latestWorkout;
   
   // Send latest workout to python server for parsing.
@@ -85,24 +84,27 @@ app.post('/post-workout', verifyToken, async (req, res) => {
         });
       
       if (response.status === 500) {
-        res.status(500).send( {'error': 'Backend wasnt able to handle the given string.'} );
+        const errortext = 'Python-backend wasnt able to handle the given string.';
+        console.error(errortext);
+        res.status(500).json({'error': errortext}).send();
       } else {          
         // Python server returned a valid response.
         const new_exercises = response.data.training;
         console.log('Received parsed data from python server:', new_exercises);
         getLatestWorkoutData(username).then(async (old_exercises)=>{
-          console.log('Found exercises from last times:' + old_exercises);
-          const { newIdList, oldIdList } = await createAndEditExerciseData(new_exercises, old_exercises, username);
-          console.log('New exercise IDs: ' + newIdList);
-          console.log('Old exercise IDs: ' + oldIdList);
-          // Then we are gonna synchronize the latest exercises for the user's credentials latestExercise part.
-          adjustLastExercises(newIdList, oldIdList, username)
-          res.status(201).json(new_exercises).send();
+            console.log('Found exercises from last times:' + old_exercises);
+            const { newIdList, oldIdList } = await createAndEditExerciseData(new_exercises, old_exercises, username);
+            console.log('New exercise IDs: ' + newIdList);
+            console.log('Old exercise IDs: ' + oldIdList);
+            // Then we are gonna synchronize the latest exercises for the user's credentials latestExercise part.
+            adjustLastExercises(newIdList, oldIdList, username)
+            res.status(201).json(new_exercises).send();
         });
       }
     } catch (error) {
-      console.error('ERROR 3: ', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+        const errortext = 'Error: Data is not in a valid format.';
+        console.error(errortext);
+        res.status(500).json({ error: errortext }).send();
     }
 });
 
@@ -110,7 +112,6 @@ app.post('/post-workout', verifyToken, async (req, res) => {
 app.post('/get-workout', verifyToken, async (req, res) => {
     console.log('Received /get-workout command.');
     const username = req.body.username;
-    const fitnessGoal = req.body.fitnessGoal;
     const latestWorkout = req.body.latestWorkout;
 
     try {

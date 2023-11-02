@@ -19,21 +19,22 @@ userRouter.post('/users', async (req,res) => {
         console.log('Post request to /users')
         console.log("Creating new account with username " + req.body.username)
         const hashedPassword = await bcrypt.hash(req.body.password, 10) // Salt with number 10
-        const user = {'username': req.body.username, 'password': hashedPassword}
-        console.log('Hashed password: ' + hashedPassword)
+        const user = {'username': req.body.username, 'password': hashedPassword, 'fitnessGoal': req.body.fitnessGoal}
+        console.log('Fitness-goal: ', user.fitnessGoal);
         
-        // TODO: Better errorhandling
+        // TODO: Better error-handling
         credentials.findOne({
             where: { id: user.username }
         }).then(retrievedDBUser => {
-            if(retrievedDBUser) {
+            if (retrievedDBUser) {
                 res.status(409).send()  // User exists.
             } else {
                 // Inserts user's hashed credentials in to the database.
                 credentials.create({
                     id: user.username,
                     password: user.password,
-                    latestExercise: '[]'
+                    latestExercise: '[]',
+                    fitnessGoal: user.fitnessGoal
                 }).then(createdUser => {
                     console.log('New user table created.')
                     res.status(201).send()  // User created successfully.

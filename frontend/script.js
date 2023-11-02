@@ -111,6 +111,7 @@ document.getElementById('createAccountForm').addEventListener('submit', function
     const newUsername = document.getElementById('newUsername').value;
     const newPassword = document.getElementById('newPassword').value;
     const retypePassword = document.getElementById('retypePassword').value;
+    const fitnessGoal = document.getElementById('fitnessGoal').value;
 
     if (newPassword !== retypePassword) {
         alert("Passwords do not match");
@@ -119,7 +120,8 @@ document.getElementById('createAccountForm').addEventListener('submit', function
 
     const credentials = {
         'username': newUsername,
-        'password': newPassword
+        'password': newPassword,
+        'fitnessGoal': fitnessGoal
     };
 
     fetch(SERVER_ADDRESS + '/users', {
@@ -176,7 +178,6 @@ function postWorkout() {
 
     const data = {
         username: localStorage.getItem('username'),
-        fitnessGoal: 'weightLoss',
         latestWorkout: workoutTextarea.value
     };
 
@@ -193,14 +194,19 @@ function postWorkout() {
         .then(response => {
             if (response.ok) {
                 return response.json();
-            } else {
-                throw new Error('Network response was not ok');
+            } else if (response.status === 500) {
+                const errormessage = 'Could not save this workout.';
+                savedTime.textContent = errormessage
+                savedTime.style.color = 'red';
+                savedMessage.classList.remove('hidden');
+                throw new Error(errormessage);
             }
         })
         .then(data => {
             const now = new Date();
-            savedTime.textContent = now.toLocaleString();
+            savedTime.textContent = "Workout saved at " + now.toLocaleString();
             savedMessage.classList.remove('hidden');
+            savedTime.style.color = 'green';
             console.log('Saved workout-data to the database:', data);
         })
         .catch(error => {

@@ -47,10 +47,6 @@
                 <label for="retypePassword" class="form-label">Retype password:</label>
                 <input type="password" class="form-control" id="retypePassword" required>
             </div>
-            <button type="submit" class="btn btn-success">Create Account</button>
-        </form>
-
-        <form id="workoutForm">
             <div class="mb-3">
                 <label for="fitnessGoal" class="form-label">Fitness Goal:</label>
                 <select class="form-select" id="fitnessGoal" required>
@@ -59,12 +55,15 @@
                     <option value="endurance">Endurance</option>
                 </select>
             </div>
+            <button type="submit" class="btn btn-success">Create Account</button>
+        </form>
 
+        <form id="workoutForm">
             <div class="mb-3">
                 <label for="latestWorkout" class="form-label">Write your current workout:</label>
                 <textarea class="form-control" id="latestWorkout" rows="5"></textarea>
             </div>
-            <div id="workoutSavedMessage" class="hidden">Workout saved at <span id="savedTime"></span></div>
+            <div id="workoutSavedMessage" class="hidden"><span id="savedTime"></span></div>
             <button type="button" onclick="getWorkout()" class="btn btn-info">Retrieve new workout</button>
         </form>
     </div>

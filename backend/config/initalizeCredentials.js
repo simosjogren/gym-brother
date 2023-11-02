@@ -18,6 +18,10 @@ const dbCredentials = db.define('credentials', {
   latestExercise: {
     type: DataTypes.STRING(256),
     allowNull: false
+  },
+  fitnessGoal: {
+    type: DataTypes.STRING(30),
+    allowNull: false
   }
 });
 
