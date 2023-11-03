@@ -37,11 +37,9 @@ function inputParser(workouts_in_string, exerciseClass) {
                 }],
                 comment
             };
-
             // Add it into the all workouts list
             workoutlist_final.push(parsedData);
         });
-
         return workoutlist_final;
     } catch (error) {
         return [];

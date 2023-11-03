@@ -6,6 +6,11 @@ function showLogin() {
     document.getElementById('createAccountForm').classList.add('hidden');
 }
 
+function showCreateAccount() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('createAccountForm').classList.remove('hidden');
+}
+
 function showNotLoggedIn() {
     const loggedInBar = document.getElementById('loggedInBar');
     loggedInBar.classList.remove('hidden');
@@ -19,13 +24,9 @@ function showNotLoggedIn() {
     loginOptions.classList.remove('hidden');
 
     document.getElementById('latestWorkout').disabled = true;
+    document.getElementById('CreateTabFormDiv').classList.add('hidden');
 
     removeAllTabs();    //  Remove all tabs from the workout page.
-}
-
-function showCreateAccount() {
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('createAccountForm').classList.remove('hidden');
 }
 
 function handleLoginSuccess(username) {
@@ -41,10 +42,9 @@ function handleLoginSuccess(username) {
     const createAccountForm = document.getElementById('createAccountForm');
     loginForm.classList.add('hidden');
     createAccountForm.classList.add('hidden');
-    // Hide login options
 
-    const loginOptions = document.getElementById('loginOptions');
-    loginOptions.classList.add('hidden');
+    document.getElementById('loginOptions').classList.add('hidden');
+    document.getElementById('CreateTabFormDiv').classList.remove('hidden');
 
     // Clear the content of the forms
     loginForm.reset();
@@ -178,6 +178,31 @@ function createTabItem(tabname) {
     return newButtonElement;
 }
 
+function createNewTabFromScratch() {
+    const newValue = document.getElementById('newTabName').value;
+    console.log('Creating new tab for ' + newValue + '.')
+    createTabItem(newValue);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var myWorkoutTabs = document.getElementById('myWorkoutTabs');
+
+    myWorkoutTabs.addEventListener('click', function(event) {
+        if (event.target && event.target.matches('button.nav-link')) {
+            var tabName = event.target.textContent;
+            tapPressed(tabName);
+        }
+    });
+
+    function tapPressed(tabName) {
+        // Save the title of the tab in localStorage
+        localStorage.setItem('selectedTab', tabName);
+        console.log('Tab pressed:', tabName);
+        getWorkout();
+
+    }
+});
+
 
 function getWorkout() {
     fetch(SERVER_ADDRESS + '/get-workout', {
@@ -187,7 +212,8 @@ function getWorkout() {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({
-                username: localStorage.getItem('username')
+                username: localStorage.getItem('username'), 
+                exerciseClass: localStorage.getItem('selectedTab')
             }),
         })
         .then(response => response.json())
@@ -198,9 +224,6 @@ function getWorkout() {
             } else {
                 console.log('Did not find any workout data for the user.')
             }
-            createTabItem('Chest');
-            createTabItem('Legs');
-            createTabItem('Arms');
         })
         .catch(error => {
             console.error('Error:', error);
@@ -218,7 +241,7 @@ function postWorkout() {
     const workoutTextarea = document.getElementById('latestWorkout');
     const savedMessage = document.getElementById('workoutSavedMessage');
     const savedTime = document.getElementById('savedTime');
-    const exerciseClass = "Legs";   //  dummy value
+    const exerciseClass = localStorage.getItem('selectedTab');
 
     const data = {
         username: localStorage.getItem('username'),

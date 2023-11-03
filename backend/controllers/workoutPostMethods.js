@@ -72,7 +72,7 @@ async function getLatestWorkoutData(username) {
         // This means the exercise is already in the database and should be updated.
         const old_id = oldIdList[foundMatchingIndex];
         await exercises.update(
-          { exercises: JSON.stringify(new_exercises[i].exercises), comments: new_exercises[i].comment },
+          { exercises: JSON.stringify(new_exercises[i].exercises), comments: new_exercises[i].comment},
           { where: { id: old_id, username: username } }
         );
         newIdList.push(old_id); // Add the new ID to the list for comparing afterwards.

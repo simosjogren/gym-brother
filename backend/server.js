@@ -45,7 +45,6 @@ app.post('/post-workout', verifyToken, async (req, res) => {
   const username = req.body.username;
   const latestWorkout = req.body.latestWorkout;
   const exerciseClass = req.body.exerciseClass;
-  console.log('ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ' + exerciseClass)
   
   // Send latest workout to python server for parsing.
     try {     
@@ -55,6 +54,7 @@ app.post('/post-workout', verifyToken, async (req, res) => {
         }
         getLatestWorkoutData(username).then(async (old_exercises)=>{
             console.log('Found exercises from last times:' + old_exercises);
+            console.log(parsedInput)
             const { newIdList, oldIdList } = await createAndEditExerciseData(parsedInput, old_exercises, username);
             console.log('New exercise IDs: ' + newIdList);
             console.log('Old exercise IDs: ' + oldIdList);
@@ -72,6 +72,7 @@ app.post('/post-workout', verifyToken, async (req, res) => {
 app.post('/get-workout', verifyToken, async (req, res) => {
     console.log('Received /get-workout command.');
     const username = req.body.username;
+    const exerciseClass =  req.body.exerciseClass;
 
     try {
         const retrievedDBUser = await credentials.findOne({
@@ -85,7 +86,7 @@ app.post('/get-workout', verifyToken, async (req, res) => {
 
             for (let n = 0; n < latestExercises.length; n++) {
                 const retrievedExercise = await exercisetable.findOne({
-                    where: { id: latestExercises[n] }
+                    where: { id: latestExercises[n], exerciseClass: exerciseClass }
                 });
                 const retrievedExerciseData = retrievedExercise.dataValues
                 if (retrievedExercise) {
