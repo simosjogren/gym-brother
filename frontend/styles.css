@@ -21,6 +21,7 @@ label, select, textarea {
 
 button {
     font-size: 16px;
+    transition: background-color 0.3s; /* Added transition for hover effect */
 }
 
 button:hover {
@@ -47,4 +48,20 @@ button:hover {
 #loggedInBar p {
     display: inline-block;
     margin-right: 10px;
+}
+
+/* Hover effect for tabs */
+.nav-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Active tab */
+.nav-item.active {
+    background-color: #fff;
+}
+
+/* Click effect for tabs */
+.nav-item.active:focus {
+    background-color: #fff;
+    box-shadow: none;
 }

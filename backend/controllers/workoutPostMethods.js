@@ -53,6 +53,7 @@ async function getLatestWorkoutData(username) {
         await exercises.create({
           id: exerciseId,
           username: username,
+          exerciseClass: new_exercises[i].exerciseClass,
           exerciseName: new_exercises[i].exerciseName,
           exercises: JSON.stringify(new_exercises[i].exercises),
           comments: new_exercises[i].comment

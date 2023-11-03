@@ -12,11 +12,15 @@ const exercises = db.define('training_data', {
         primaryKey: true,
         allowNull: false,
     },
-    exerciseName: {
+    username: {
         type: DataTypes.STRING(32),
         allowNull: false
     },
-    username: {
+    exerciseClass: {
+        type: DataTypes.STRING(32),
+        allowNull: false
+    },
+    exerciseName: {
         type: DataTypes.STRING(32),
         allowNull: false
     },
