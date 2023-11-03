@@ -178,10 +178,25 @@ function createTabItem(tabname) {
     return newButtonElement;
 }
 
-function createNewTabFromScratch() {
+async function createNewTabFromScratch() {
     const newValue = document.getElementById('newTabName').value;
     console.log('Creating new tab for ' + newValue + '.')
+
     createTabItem(newValue);
+    data = {newTabName: newValue, username: localStorage.getItem('username')};
+
+    const token = localStorage.getItem('token');
+    await fetch(SERVER_ADDRESS + '/create-tab', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data),
+    }).then(response => {
+        response = response.json()
+        console.log(response);
+    })
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -218,12 +233,8 @@ function getWorkout() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data) {
-                // Lets update the textbox accordinly:
-                document.getElementById('latestWorkout').value = data;
-            } else {
-                console.log('Did not find any workout data for the user.')
-            }
+            // Lets update the textbox accordinly:
+            document.getElementById('latestWorkout').value = data;
         })
         .catch(error => {
             console.error('Error:', error);

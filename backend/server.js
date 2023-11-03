@@ -54,7 +54,6 @@ app.post('/post-workout', verifyToken, async (req, res) => {
         }
         getLatestWorkoutData(username).then(async (old_exercises)=>{
             console.log('Found exercises from last times:' + old_exercises);
-            console.log(parsedInput)
             const { newIdList, oldIdList } = await createAndEditExerciseData(parsedInput, old_exercises, username);
             console.log('New exercise IDs: ' + newIdList);
             console.log('Old exercise IDs: ' + oldIdList);
@@ -106,8 +105,30 @@ app.post('/get-workout', verifyToken, async (req, res) => {
         }
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).json({ error: 'Internal Server Error' }).send();
+        res.status(500).json("").send();
     }
+});
+
+app.post('/create-tab', verifyToken, async (req, res) => {
+    console.log('Received /create-tab command.')
+    const username = req.body.username;
+    const tabName = req.body.newTabName;
+    await credentials.findOne( {
+        where: { id: username }
+    }).then(retrievedDBUser => {
+        const tabs = JSON.parse(retrievedDBUser.tabs);
+        tabs.push(tabName);
+        credentials.update(
+            { tabs: JSON.stringify(tabs) },
+            { where: { id: username } }
+        ).then(() => {
+            console.log('Tab created.');
+            res.status(201).json({}).send();
+        }).catch(error => {
+            console.error('Error:', error);
+            res.status(500).json({ error: error }).send();
+        });
+    })
 });
 
 

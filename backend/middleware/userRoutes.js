@@ -34,7 +34,8 @@ userRouter.post('/users', async (req,res) => {
                     id: user.username,
                     password: user.password,
                     latestExercise: '[]',
-                    fitnessGoal: user.fitnessGoal
+                    fitnessGoal: user.fitnessGoal,
+                    tabs: '[]'
                 }).then(createdUser => {
                     console.log('New user table created.')
                     res.status(201).send()  // User created successfully.

@@ -22,6 +22,10 @@ const dbCredentials = db.define('credentials', {
   fitnessGoal: {
     type: DataTypes.STRING(30),
     allowNull: false
+  },
+  tabs: {
+    type: DataTypes.STRING(128),
+    allowNull: false
   }
 });
 
