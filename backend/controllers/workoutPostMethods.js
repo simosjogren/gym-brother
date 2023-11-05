@@ -39,7 +39,9 @@ async function getLatestWorkoutData(username) {
   
   
   async function createAndEditExerciseData(new_exercises, old_exercises, username) {
-    console.log("NEW EXERCISES: ", new_exercises);
+    new_exercises = new_exercises;
+    old_exercises = old_exercises;
+    console.log("NEW EXERCISES: ", new_exercises[0]);
     console.log("OLD EXERCISES: ", old_exercises);
     const oldIdList = old_exercises.map(item => item.id);
     const newIdList = [];   // We will add all the found IDs here.
@@ -48,7 +50,7 @@ async function getLatestWorkoutData(username) {
       // This returns index of old_exercises.
       if (foundMatchingIndex === -1) {
         // This means that the exercise is new and should be added to the database.
-        console.log('Adding new exercise to the database.')
+        console.log('Adding new exercise to the database: ' , new_exercises[i])
         const exerciseId = randomatic('Aa0', 10);
         await exercises.create({
           id: exerciseId,
@@ -56,7 +58,7 @@ async function getLatestWorkoutData(username) {
           exerciseClass: new_exercises[i].exerciseClass,
           exerciseName: new_exercises[i].exerciseName,
           exercises: JSON.stringify(new_exercises[i].exercises),
-          comments: new_exercises[i].comment
+          comments: new_exercises[i].comments
         });
         console.log('Created new row to the database.');
         newIdList.push(exerciseId); // Add the new ID to the list for comparing afterwards.
@@ -72,7 +74,7 @@ async function getLatestWorkoutData(username) {
         // This means the exercise is already in the database and should be updated.
         const old_id = oldIdList[foundMatchingIndex];
         await exercises.update(
-          { exercises: JSON.stringify(new_exercises[i].exercises), comments: new_exercises[i].comment},
+          { exercises: JSON.stringify(new_exercises[i].exercises), comments: new_exercises[i].comments},
           { where: { id: old_id, username: username } }
         );
         newIdList.push(old_id); // Add the new ID to the list for comparing afterwards.

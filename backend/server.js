@@ -16,7 +16,7 @@ const credentials = require('./config/initalizeCredentials');
 // Import controller functions
 const { getLatestWorkoutData, createAndEditExerciseData, adjustLastExercises } = require('./controllers/workoutPostMethods');
 // Import tools
-const { inputParser, displayableFormatConverter } = require('./tools/inputParsing');
+const { inputParser } = require('./tools/inputParsing');
 
 
 // Test the database-connection status
@@ -63,23 +63,22 @@ app.get('/get-tabs', verifyToken, async (req, res) => {
 app.post('/post-workout', verifyToken, async (req, res) => {
   console.log('Received /post-workout command.')
   const username = req.body.username;
-  const latestWorkout = req.body.latestWorkout;
-  const exerciseClass = req.body.exerciseClass;
+  const latestWorkout = JSON.parse(req.body.latestWorkout);
+  console.log('Latest workout (in JSON parsed format): ', latestWorkout);
   
   // Send latest workout to python server for parsing.
     try {     
-        const parsedInput = inputParser(latestWorkout, exerciseClass);
-        if (parsedInput.length === 0) {
+        if (latestWorkout.length === 0) {
             throw new Error('Data is not in a valid format.');
         }
         getLatestWorkoutData(username).then(async (old_exercises)=>{
             console.log('Found exercises from last times:' + old_exercises);
-            const { newIdList, oldIdList } = await createAndEditExerciseData(parsedInput, old_exercises, username);
+            const { newIdList, oldIdList } = await createAndEditExerciseData(latestWorkout, old_exercises, username);
             console.log('New exercise IDs: ' + newIdList);
             console.log('Old exercise IDs: ' + oldIdList);
             // Then we are gonna synchronize the latest exercises for the user's credentials latestExercise part.
             adjustLastExercises(newIdList, oldIdList, username)
-            res.status(201).json(parsedInput).send();
+            res.status(201).json(latestWorkout).send();
         });
     } catch (error) {
         console.error(error);
@@ -91,7 +90,6 @@ app.post('/post-workout', verifyToken, async (req, res) => {
 app.post('/get-workout', verifyToken, async (req, res) => {
     console.log('Received /get-workout command.');
     const username = req.body.username;
-    const exerciseClass =  req.body.exerciseClass;
 
     try {
         const retrievedDBUser = await credentials.findOne({
@@ -105,7 +103,7 @@ app.post('/get-workout', verifyToken, async (req, res) => {
 
             for (let n = 0; n < latestExercises.length; n++) {
                 const retrievedExercise = await exercisetable.findOne({
-                    where: { id: latestExercises[n], exerciseClass: exerciseClass }
+                    where: { id: latestExercises[n] }
                 });
                 const retrievedExerciseData = retrievedExercise.dataValues
                 if (retrievedExercise) {
@@ -116,9 +114,8 @@ app.post('/get-workout', verifyToken, async (req, res) => {
                     console.log('Did not find the exercise.');
                 }
             }
-            const exerciseListString = displayableFormatConverter(exerciseList);
             // Now we should have all the exercise data in the exerciseList.
-            res.status(201).json(exerciseListString).send();
+            res.status(201).json(exerciseList).send();
         } else {
             console.log('Did not find the user.');
             res.status(404).json({ error: 'User not found' }).send();

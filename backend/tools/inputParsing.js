@@ -24,7 +24,7 @@ function inputParser(workouts_in_string, exerciseClass) {
             const reps = repsHandling(exerciseData_raw);
 
             // Comment handling
-            const comment = exerciseData_raw[2] || "";
+            const comments = exerciseData_raw[2] || "";
 
             // Create the JSON object
             const parsedData = {
@@ -35,7 +35,7 @@ function inputParser(workouts_in_string, exerciseClass) {
                     both_sides,
                     reps
                 }],
-                comment
+                comments
             };
             // Add it into the all workouts list
             workoutlist_final.push(parsedData);
@@ -84,35 +84,5 @@ function repsHandling(exerciseData_raw) {
     const reps = reps_str.split("/").map(rep => parseInt(rep, 10));
     return reps;
 }
-    
 
-function displayableFormatConverter(exerciseList) {
-    // We convert the JSON received from python backend into a displayable format in JS.
-        let displayableString = "";
-        for (let n = 0; n < exerciseList.length; n++) {
-            displayableString += exerciseList[n].exerciseName + ": ";
-            const current_exercise = JSON.parse(exerciseList[n].exercises);
-            for (let i = 0; i < current_exercise.length; i++) {
-                console.log(current_exercise[i])    
-                if (current_exercise[i].both_sides) {
-                    displayableString += current_exercise[i].weights + '+' + current_exercise[i].weights;
-                } else {
-                    displayableString += current_exercise[i].weights;
-                }
-                displayableString += ', ';
-                displayableString += current_exercise[i].reps[0];
-                for (let m = 1; m < current_exercise[i].reps.length; m++) {
-                    displayableString += '/';
-                    displayableString += current_exercise[i].reps[m];
-                }
-                if (current_exercise[i].comments !== "") {
-                    displayableString += ', ';
-                    displayableString += exerciseList[n].comments;
-                }
-            }
-            displayableString += '\n';
-        }
-        return displayableString;
-}
-
-module.exports = { inputParser, displayableFormatConverter };
+module.exports = { inputParser };
