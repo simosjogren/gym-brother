@@ -29,7 +29,7 @@ function showNotLoggedIn() {
     removeAllTabs();    //  Remove all tabs from the workout page.
 }
 
-function handleLoginSuccess(username) {
+async function handleLoginSuccess(username) {
     const loggedInBar = document.getElementById('loggedInBar');
     const loggedInMessage = document.getElementById('loggedInMessage');
     loggedInMessage.textContent = "Welcome, " + username;
@@ -52,7 +52,21 @@ function handleLoginSuccess(username) {
 
     document.getElementById('latestWorkout').disabled = false;
 
-    getWorkout();   // Lets update the workout to the screen.
+    const token = localStorage.getItem('token');
+    await fetch(`${SERVER_ADDRESS}/get-tabs?username=${username}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    }).then(response => response.json()).then(data => {
+        console.log(data);
+        for (let n = 0; n < data.length; n++) {
+            createTabItem(data[n]);
+        }
+        localStorage.setItem('selectedTab', data[0]);
+        // getWorkout();   // Lets update the workout to the screen.
+    });
 }
 
 function logout() {
@@ -292,8 +306,3 @@ function postWorkout() {
             console.error('Error:', error);
         });
 }
-
-document.getElementById('workoutForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    postWorkout();
-});

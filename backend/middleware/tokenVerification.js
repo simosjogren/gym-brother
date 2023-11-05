@@ -5,7 +5,12 @@ const jwt = require('jsonwebtoken');
 const sessiontokens = require('../config/initializeSessionTokens');
 
 function verifyToken(req, res, next) {
-  const username = req.body.username
+  let username;
+  if (req.method === 'GET') {
+    username = req.query.username;
+  } else if (req.method === 'POST') {
+    username = req.body.username;
+  }
   const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
   if (!token) {
     console.log('Did not receive a token.')
@@ -31,5 +36,6 @@ function verifyToken(req, res, next) {
     return res.status(500).json({ error: 'Unknown error' });
   })
 }
+
 
 module.exports = verifyToken;

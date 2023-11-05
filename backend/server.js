@@ -40,6 +40,26 @@ app.use(corsMiddleware); // CORS middleware
 app.use(userRouter); // User login middleware
 
 
+app.get('/get-tabs', verifyToken, async (req, res) => {
+    console.log('Received /get-tabs command.');
+    try {
+        const username = req.query.username;
+        const retrievedDBUser = await credentials.findOne({
+            where: { id: username }
+        });
+        if (retrievedDBUser) {
+            const tabs = JSON.parse(retrievedDBUser.tabs);
+            res.status(200).json(tabs);
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
 app.post('/post-workout', verifyToken, async (req, res) => {
   console.log('Received /post-workout command.')
   const username = req.body.username;
