@@ -1,7 +1,7 @@
 import { displayableFormatConverter } from './displayableFormatConverter.js';
 import { inputParser } from './inputParser.js';
-import { createTabItem } from '../components/tabs.js';
-import { showLogin } from '../components/login.js';
+import { showMessage } from '../components/misc.js';
+import { createAccountCancelButtonPressed } from '../components/login.js';
 import { SERVER_ADDRESS } from '../constants.js';
 
 export function getWorkout() {
@@ -37,8 +37,6 @@ export function getWorkout() {
 
 
 export function postWorkout() {
-    const savedMessage = document.getElementById('workoutSavedMessage');
-    const savedTime = document.getElementById('savedTime');
     const exerciseClass = localStorage.getItem('selectedTab');
     const latestWorkout = JSON.parse(localStorage.getItem('workoutData'));
 
@@ -77,18 +75,14 @@ export function postWorkout() {
             if (response.ok) {
                 return response.json();
             } else if (response.status === 500) {
-                const errormessage = 'Could not save this workout.';
-                savedTime.textContent = errormessage
-                savedTime.style.color = 'red';
+                showMessage('Could not send workout to server. Fix the form.', 'red');
                 savedMessage.classList.remove('hidden');
                 throw new Error(errormessage);
             }
         })
         .then(data => {
             const now = new Date();
-            savedTime.textContent = "Workout saved at " + now.toLocaleString();
-            savedMessage.classList.remove('hidden');
-            savedTime.style.color = 'green';
+            showMessage("Workout saved at " + now.toLocaleString());
             console.log('Saved workout-data to the database:', data);
         })
         .catch(error => {
@@ -104,7 +98,7 @@ export function createAccount() {
     const fitnessGoal = document.getElementById('fitnessGoal').value;
 
     if (newPassword !== retypePassword) {
-        alert("Passwords do not match");
+        showMessage("Passwords do not match");
         return;
     }
 
@@ -122,8 +116,18 @@ export function createAccount() {
             body: JSON.stringify(credentials),
         })
         .then(response => response.status)
-        .then(data => {
-            showLogin(); // Show the login form after successful account creation
+        .then((status) => {
+            if (status === 201) {
+                // We want to close the create account bar after succesful login.
+                createAccountCancelButtonPressed();
+                showMessage('Account successfully created!');
+            }
+            if (status === 409) {
+                showMessage('Username already exists', 'red');
+            }
+            if (status === 500) {
+                showMessage('Unknown error with the server...', 'red');
+            }
         })
         .catch(error => {
             console.error('Error:', error);

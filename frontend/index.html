@@ -22,6 +22,8 @@
             <button class="btn btn-success" id="createAccountButton">Create Account</button>
         </div>
 
+        <div id="messageContainer">Welcome!</div><br>
+
         <form id="loginForm" class="hidden">
             <div class="row mb-3">
                 <div class="col-md-6">
@@ -34,6 +36,7 @@
                 </div>
             </div>
             <button id="loginButton" type="submit" class="btn btn-primary">Login</button>
+            <button class="btn btn-secondary me-2" id="loginCancelButton">Cancel</button>
         </form>
 
         <form id="createAccountForm" class="hidden">
@@ -58,6 +61,7 @@
                 </select>
             </div>
             <button type="submit" class="btn btn-success">Create Account</button>
+            <button class="btn btn-secondary me-2" id="createAccountCancelButton">Cancel</button>
         </form>
         <div id="CreateTabFormDiv" class="hidden">
             <form id="createTabForm" class="row mb-3 align-items-end">
@@ -80,10 +84,7 @@
             <label for="latestWorkout" class="form-label">Write your current workout:</label>
             <textarea class="form-control" id="latestWorkout" rows="12"></textarea>
         </div>
-        
-        <div id="workoutSavedMessage" class="hidden"><span id="savedTime"></span></div>
         <button type="button" class="btn btn-info" id="newWorkoutRetrieveButton">Retrieve new workout</button>
-        
     </div>
 
     <script src="./src/main.js" type="module"></script>

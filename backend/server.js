@@ -49,7 +49,11 @@ app.get('/get-tabs', verifyToken, async (req, res) => {
         });
         if (retrievedDBUser) {
             const tabs = JSON.parse(retrievedDBUser.tabs);
-            res.status(200).json(tabs);
+            if (tabs && tabs.length > 0) {
+                res.status(200).json(tabs);
+            } else {
+                res.status(204).json({ message: 'No tabs created yet' });
+            }
         } else {
             res.status(404).json({ error: 'User not found' });
         }

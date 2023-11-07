@@ -1,6 +1,7 @@
 import { displayableFormatConverter } from '../utils/displayableFormatConverter.js';
 import { getWorkout } from '../utils/api.js';
 import { SERVER_ADDRESS } from '../constants.js';
+import { showMessage } from './misc.js';
 
 export function createTabItem(tabname) {
     // Assuming you have an existing ul element with the id "myWorkoutTabs"
@@ -28,6 +29,9 @@ export function createTabItem(tabname) {
     // Append the li element to the ul
     myWorkoutTabs.appendChild(newLiElement);
 
+    // Now we want to allow the workoutwriting, because we have the first tab.
+    document.getElementById('latestWorkout').disabled = false;
+
     // Return the generated button element in case you want to further manipulate it
     return newButtonElement;
 }
@@ -53,28 +57,43 @@ export function removeAllTabs() {
 export async function getTabs() {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
-    await fetch(`${SERVER_ADDRESS}/get-tabs?username=${username}`, {
+    const response = await fetch(`${SERVER_ADDRESS}/get-tabs?username=${username}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         }
-    }).then(response => response.json()).then(data => {
-        for (let n = 0; n < data.length; n++) {
-            createTabItem(data[n]);
-        }
-        localStorage.setItem('selectedTab', data[0]);
-        getWorkout();   // Lets update the workout to the screen.
     });
+    if (response.status === 200) {
+        const data = await response.json();
+        if (data) {
+            for (let n = 0; n < data.length; n++) {
+                createTabItem(data[n]);
+            }
+            localStorage.setItem('selectedTab', data[0]);
+            document.getElementById(data[0]+'-tab').classList.add('active');
+            getWorkout();
+        } else {
+            showMessage('Data is undefined.');
+        }
+    } else if (response.status === 204) {
+        showMessage('You need to create a tab first.');
+    }
 }
 
 
 export async function createNewTabFromScratch() {
     const newValue = document.getElementById('newTabName').value;
-    console.log('Creating new tab for ' + newValue + '.')
-
     createTabItem(newValue);
     let data = {newTabName: newValue, username: localStorage.getItem('username')};
+    document.getElementById(newValue + '-tab').classList.add('active');
+    try {
+        const tabname = localStorage.getItem('selectedTab');
+        showMessage('Created a new tab.');
+    } catch {
+        showMessage('Created a first tab.');
+        document.getElementById(tabname + '-tab').classList.add('active');
+    }
 
     const token = localStorage.getItem('token');
     await fetch(SERVER_ADDRESS + '/create-tab', {

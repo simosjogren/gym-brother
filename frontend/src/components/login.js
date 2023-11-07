@@ -1,15 +1,31 @@
 import { removeAllTabs } from './tabs.js'
 import { getTabs } from './tabs.js'
+import { showMessage } from './misc.js';
 import { SERVER_ADDRESS } from '../constants.js';
 
 export function showLogin() {
     document.getElementById('loginForm').classList.remove('hidden');
     document.getElementById('createAccountForm').classList.add('hidden');
+    showMessage('Type in your username and password.')
 }
 
 export function showCreateAccount() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('createAccountForm').classList.remove('hidden');
+    showMessage('Create a new account.')
+}
+
+export function loginCancelButtonPressed() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('loginOptions').classList.remove('hidden');
+    document.getElementById('CreateTabFormDiv').classList.add('hidden');
+    showMessage('')
+}
+
+export function createAccountCancelButtonPressed() {
+    document.getElementById('createAccountForm').classList.add('hidden');
+    document.getElementById('CreateTabFormDiv').classList.add('hidden');
+    showMessage('')
 }
 
 export function login() {
@@ -28,10 +44,11 @@ export function login() {
             body: JSON.stringify(credentials),
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to log in');
-            } else {
+            if (response.status === 200) {
+                showMessage('Login was succesful!');
                 return response.json();
+            } else {
+                showMessage('Failed to login', 'red');
             }
         })
         .then(token => {
@@ -60,6 +77,8 @@ export function showNotLoggedIn() {
     document.getElementById('CreateTabFormDiv').classList.add('hidden');
 
     removeAllTabs();    //  Remove all tabs from the workout page.
+
+    showMessage('Logged out.');
 }
 
 export async function handleLoginSuccess(username) {
@@ -75,7 +94,6 @@ export async function handleLoginSuccess(username) {
     const createAccountForm = document.getElementById('createAccountForm');
     loginForm.classList.add('hidden');
     createAccountForm.classList.add('hidden');
-
     document.getElementById('loginOptions').classList.add('hidden');
     document.getElementById('CreateTabFormDiv').classList.remove('hidden');
 
@@ -83,7 +101,6 @@ export async function handleLoginSuccess(username) {
     loginForm.reset();
     createAccountForm.reset();
 
-    document.getElementById('latestWorkout').disabled = false;
     getTabs();
 }
 

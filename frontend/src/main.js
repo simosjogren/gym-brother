@@ -3,7 +3,8 @@ let typingTimer;
 import { getWorkout, postWorkout, createAccount } from './utils/api.js';
 import { displayableFormatConverter } from './utils/displayableFormatConverter.js';
 import { removeAllTabs, createTabItem, tapPressed, createNewTabFromScratch } from './components/tabs.js';
-import { showNotLoggedIn, login, logout, handleLoginSuccess, showCreateAccount, showLogin } from './components/login.js';
+import { showNotLoggedIn, login, logout, handleLoginSuccess, 
+    showCreateAccount, showLogin, loginCancelButtonPressed, createAccountCancelButtonPressed } from './components/login.js';
 import { inputParser } from './utils/inputParser.js';
 
 
@@ -13,7 +14,15 @@ document.querySelector('#loginButton').addEventListener('click', showLogin)
 document.querySelector('#createAccountButton').addEventListener('click', showCreateAccount)
 document.querySelector('#createTabButton').addEventListener('click', createNewTabFromScratch)
 document.querySelector('#newWorkoutRetrieveButton').addEventListener('click', getWorkout)
-// We use event.preventDefault() to prevent the default action of the form (which is to refresh the page)
+
+document.querySelector('#loginCancelButton').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent the form from being submitted
+    loginCancelButtonPressed();
+});
+document.querySelector('#createAccountCancelButton').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent the form from being submitted
+    createAccountCancelButtonPressed();
+});
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
     login();
@@ -22,7 +31,6 @@ document.getElementById('createAccountForm').addEventListener('submit', function
     event.preventDefault();
     createAccount();
 });
-
 
 window.onload = function() {
     const username = localStorage.getItem('username');
