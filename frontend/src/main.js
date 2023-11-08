@@ -6,6 +6,7 @@ import { removeAllTabs, createTabItem, tapPressed, createNewTabFromScratch } fro
 import { showNotLoggedIn, login, logout, handleLoginSuccess, 
     showCreateAccount, showLogin, loginCancelButtonPressed, createAccountCancelButtonPressed } from './components/login.js';
 import { inputParser } from './utils/inputParser.js';
+import { showMessage } from './components/misc.js';
 
 
 // Turning the onclick actions on.
@@ -49,6 +50,7 @@ document.getElementById('latestWorkout').addEventListener('input', function() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
+    showMessage('');
     var myWorkoutTabs = document.getElementById('myWorkoutTabs');
     myWorkoutTabs.addEventListener('click', function(event) {
         if (event.target && event.target.matches('button.nav-link')) {

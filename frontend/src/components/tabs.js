@@ -86,9 +86,7 @@ export async function createNewTabFromScratch() {
     const newValue = document.getElementById('newTabName').value;
     createTabItem(newValue);
     let data = {newTabName: newValue, username: localStorage.getItem('username')};
-    document.getElementById(newValue + '-tab').classList.add('active');
     try {
-        const tabname = localStorage.getItem('selectedTab');
         showMessage('Created a new tab.');
     } catch {
         showMessage('Created a first tab.');

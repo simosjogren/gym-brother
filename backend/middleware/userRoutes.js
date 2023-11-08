@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 
+const verifyToken = require('./tokenVerification');
 require('dotenv').config(path.resolve(__dirname, '../.env'));
 
 const userRouter = express.Router();
@@ -125,6 +126,21 @@ userRouter.post('/users/login', async (req,res) => {
     .catch(error => {
         console.error('Error fetching user:', error);
         res.status(500).send('Error fetching user');
+    });
+});
+
+
+userRouter.post('/users/logout', verifyToken, async (req,res) => {
+    console.log('Post request to /users/logout')
+    const username = req.body.username
+    sessiontokens.destroy({
+        where: { id: username }
+    }).then(()=>{
+        console.log('Token deleted.')
+        res.status(200).send()
+    }).catch(error => {
+        console.error('Error:', error);
+        res.status(500).send();
     });
 });
 

@@ -77,8 +77,6 @@ export function showNotLoggedIn() {
     document.getElementById('CreateTabFormDiv').classList.add('hidden');
 
     removeAllTabs();    //  Remove all tabs from the workout page.
-
-    showMessage('Logged out.');
 }
 
 export async function handleLoginSuccess(username) {
@@ -104,15 +102,40 @@ export async function handleLoginSuccess(username) {
     getTabs();
 }
 
-export function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('selectedTab');
-    localStorage.removeItem('workoutData');
-    showNotLoggedIn();
+export async function logout() {
+    // Get the username for the logout request
+    const username = localStorage.getItem('username');
+
+    // Erase token from the server
+    await fetch(SERVER_ADDRESS + '/users/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ 'username': username }),
+    }).then(response => {
+        if (response.status === 200) {
+            console.log('Logout was succesful!');
+            showNotLoggedIn();
+            showMessage('Logged out.');
+        } else {
+            throw new Error();
+        }
+    }).catch(() => {
+        const failureText = 'Failed to logout on server-side, please refresh the page.';
+        console.log(failureText);
+        showMessage(failureText);
+    });
 
     // Show login and create account options
     const loginOptions = document.getElementById('loginOptions');
     loginOptions.classList.remove('hidden');
     document.getElementById('latestWorkout').value = '';
+
+    // Erase localstorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('selectedTab');
+    localStorage.removeItem('workoutData');
 }
