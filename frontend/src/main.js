@@ -1,7 +1,6 @@
 let typingTimer;
 
 import { getWorkout, postWorkout, createAccount } from './utils/api.js';
-import { displayableFormatConverter } from './utils/displayableFormatConverter.js';
 import { removeAllTabs, createTabItem, tapPressed, createNewTabFromScratch } from './components/tabs.js';
 import { showNotLoggedIn, login, logout, handleLoginSuccess, 
     showCreateAccount, showLogin, loginCancelButtonPressed, createAccountCancelButtonPressed } from './components/login.js';

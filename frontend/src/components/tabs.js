@@ -39,10 +39,15 @@ export function createTabItem(tabname) {
 
 export function tapPressed(tabName) {
     localStorage.setItem('selectedTab', tabName);
-    const exerciseClass = localStorage.getItem('selectedTab');
-    const data = JSON.parse(localStorage.getItem('workoutData'));
-    const displayableString = displayableFormatConverter(data, exerciseClass);
-    document.getElementById('latestWorkout').value = displayableString;
+    try {
+        const exerciseClass = localStorage.getItem('selectedTab');
+        const data = JSON.parse(localStorage.getItem('workoutData'));
+        const displayableString = '';
+        if (data !== undefined) {
+            displayableString = displayableFormatConverter(data, exerciseClass);
+        }
+        document.getElementById('latestWorkout').value = displayableString;
+    } catch {}
 }
 
 
@@ -67,12 +72,15 @@ export async function getTabs() {
     if (response.status === 200) {
         const data = await response.json();
         if (data) {
-            for (let n = 0; n < data.length; n++) {
+            let loop_length = data.length;
+            for (let n = 0; n < loop_length; n++) {
                 createTabItem(data[n]);
             }
-            localStorage.setItem('selectedTab', data[0]);
-            document.getElementById(data[0]+'-tab').classList.add('active');
-            getWorkout();
+            if (loop_length !== 0) {
+                localStorage.setItem('selectedTab', data[0]);
+                document.getElementById(data[0]+'-tab').classList.add('active');
+                getWorkout();
+            }
         } else {
             showMessage('Data is undefined.');
         }
@@ -86,12 +94,13 @@ export async function createNewTabFromScratch() {
     const newValue = document.getElementById('newTabName').value;
     createTabItem(newValue);
     let data = {newTabName: newValue, username: localStorage.getItem('username')};
-    try {
-        showMessage('Created a new tab.');
-    } catch {
-        showMessage('Created a first tab.');
-        document.getElementById(tabname + '-tab').classList.add('active');
-    }
+        if (localStorage.getItem('selectedTab') === null) {
+            document.getElementById(newValue + '-tab').classList.add('active');
+            showMessage('Created a first tab.');
+        } else {
+            showMessage('Created a new tab.');
+        }
+    localStorage.setItem('selectedTab', newValue);
 
     const token = localStorage.getItem('token');
     await fetch(SERVER_ADDRESS + '/create-tab', {
