@@ -39,15 +39,13 @@ export function createTabItem(tabname) {
 
 export function tapPressed(tabName) {
     localStorage.setItem('selectedTab', tabName);
-    try {
-        const exerciseClass = localStorage.getItem('selectedTab');
-        const data = JSON.parse(localStorage.getItem('workoutData'));
-        const displayableString = '';
-        if (data !== undefined) {
-            displayableString = displayableFormatConverter(data, exerciseClass);
-        }
-        document.getElementById('latestWorkout').value = displayableString;
-    } catch {}
+    const exerciseClass = localStorage.getItem('selectedTab');
+    const data = JSON.parse(localStorage.getItem('workoutData'));
+    let displayableString = '';
+    if (data !== undefined) {
+        displayableString = displayableFormatConverter(data, exerciseClass);
+    }
+    document.getElementById('latestWorkout').value = displayableString;
 }
 
 

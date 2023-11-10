@@ -54,6 +54,7 @@ export function login() {
         .then(token => {
             localStorage.setItem('token', token.token);
             localStorage.setItem('username', credentials.username);
+            localStorage.setItem('workoutData', JSON.stringify([]));
             handleLoginSuccess(credentials.username);
         })
         .catch(error => {

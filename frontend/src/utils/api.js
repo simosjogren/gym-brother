@@ -38,21 +38,29 @@ export function getWorkout() {
 
 export function postWorkout() {
     const exerciseClass = localStorage.getItem('selectedTab');
-    const latestWorkout = JSON.parse(localStorage.getItem('workoutData'));
+    let latestWorkout = localStorage.getItem('workoutData');
+    if (latestWorkout === null) {
+        console.log('No workout data found. Creating new workout data.');
+        latestWorkout = [];
+    } else {
+        latestWorkout = JSON.parse(latestWorkout);
+        console.log('Parsed workout data: ', latestWorkout);
+    }
 
     // Here we do the local browser saving process.
     const currentTabWorkout = document.getElementById('latestWorkout').value;
     const parsedWorkout = inputParser(currentTabWorkout, exerciseClass);
-    let latestWorkout_str = '';
-    for (let n=0; n < parsedWorkout.length; n++) {
+
+    for (let n = 0; n < parsedWorkout.length; n++) {
         if (latestWorkout.includes(parsedWorkout[n])) {
             continue;
         } else {
             latestWorkout.push(parsedWorkout[n]);
         }
-        latestWorkout_str = JSON.stringify(latestWorkout);
-        localStorage.setItem('workoutData', latestWorkout_str);
     }
+
+    const latestWorkout_str = JSON.stringify(latestWorkout);
+    localStorage.setItem('workoutData', latestWorkout_str);
 
     const data = {
         username: localStorage.getItem('username'),
@@ -64,31 +72,32 @@ export function postWorkout() {
 
     // Goes to backend in good format.
     fetch(SERVER_ADDRESS + '/post-workout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(data),
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else if (response.status === 500) {
-                showMessage('Could not send workout to server. Fix the form.', 'red');
-                savedMessage.classList.remove('hidden');
-                throw new Error(errormessage);
-            }
-        })
-        .then(data => {
-            const now = new Date();
-            showMessage("Workout saved at " + now.toLocaleString());
-            console.log('Saved workout-data to the database:', data);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else if (response.status === 500) {
+            showMessage('Could not send workout to server. Fix the form.', 'red');
+            savedMessage.classList.remove('hidden');
+            throw new Error(errormessage);
+        }
+    })
+    .then(data => {
+        const now = new Date();
+        showMessage("Workout saved at " + now.toLocaleString());
+        console.log('Saved workout-data to the database:', data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
+
 
 
 export function createAccount() {
@@ -132,4 +141,41 @@ export function createAccount() {
         .catch(error => {
             console.error('Error:', error);
         });
+}
+
+export async function upgradeWorkout() {
+    const exerciseClass = localStorage.getItem('selectedTab');
+    const latestWorkout = JSON.parse(localStorage.getItem('workoutData'));
+
+    const data = {
+        username: localStorage.getItem('username'),
+        latestWorkout: latestWorkout,
+        exerciseClass: exerciseClass
+    };
+
+    const token = localStorage.getItem('token');
+
+    try {
+        const response = await fetch(SERVER_ADDRESS + '/upgrade-workout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+            let responseData = await response.json();
+            responseData = responseData["new_workout"];
+            console.log(responseData);
+            const displayableString = displayableFormatConverter(responseData, exerciseClass);
+            document.getElementById('latestWorkout').value = displayableString;
+            localStorage.setItem('workoutData', JSON.stringify(responseData));
+        } else {
+            console.error('Error:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
 }

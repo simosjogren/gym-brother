@@ -17,6 +17,7 @@ const credentials = require('./config/initalizeCredentials');
 const { getLatestWorkoutData, createAndEditExerciseData, adjustLastExercises } = require('./controllers/workoutPostMethods');
 // Import tools
 const { inputParser } = require('./tools/inputParsing');
+const { manualUpgrade } = require('./tools/manualUpgrade');
 
 
 // Test the database-connection status
@@ -153,13 +154,24 @@ app.post('/create-tab', verifyToken, async (req, res) => {
 });
 
 
-app.get('/upgrade-workout', verifyToken, (req, res) => {
+app.post('/upgrade-workout', verifyToken, async (req, res) => {
     console.log('Received /upgrade-workout command.')
     const username = req.body.username;
-
-    // TODO establish functionality which sends the string into a python microservice for parsing.
-    // TODO establish functionality which sends the parsed string to the python microservice for upgrading progress.
-    // TODO send the parsed workout into database.
+    const latestWorkouts = req.body.latestWorkout;
+    const exerciseClass = req.body.exerciseClass;
+    const new_workouts = [];
+    let new_workout = {};
+    for (let n=0; n < latestWorkouts.length; n++) {
+        // We want to upgrade only the current class.
+        if (latestWorkouts[n].exerciseClass === exerciseClass) {
+            new_workout = manualUpgrade(latestWorkouts[n]);
+            new_workouts.push(new_workout);
+        } else {
+            new_workouts.push(latestWorkouts[n]);
+        }
+    }
+    await createAndEditExerciseData(new_workouts, latestWorkouts, username);
+    res.status(200).json({'new_workout': new_workouts}).send();
 });
 
 

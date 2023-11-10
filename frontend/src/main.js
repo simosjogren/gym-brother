@@ -1,6 +1,6 @@
 let typingTimer;
 
-import { getWorkout, postWorkout, createAccount } from './utils/api.js';
+import { getWorkout, postWorkout, createAccount, upgradeWorkout } from './utils/api.js';
 import { removeAllTabs, createTabItem, tapPressed, createNewTabFromScratch } from './components/tabs.js';
 import { showNotLoggedIn, login, logout, handleLoginSuccess, 
     showCreateAccount, showLogin, loginCancelButtonPressed, createAccountCancelButtonPressed } from './components/login.js';
@@ -13,7 +13,7 @@ document.querySelector('#logoutButton').addEventListener('click', logout)
 document.querySelector('#loginButton').addEventListener('click', showLogin)
 document.querySelector('#createAccountButton').addEventListener('click', showCreateAccount)
 document.querySelector('#createTabButton').addEventListener('click', createNewTabFromScratch)
-document.querySelector('#newWorkoutRetrieveButton').addEventListener('click', getWorkout)
+document.querySelector('#updateWorkout').addEventListener('click', upgradeWorkout)
 
 document.querySelector('#loginCancelButton').addEventListener('click', function(event) {
     event.preventDefault(); // Prevent the form from being submitted
