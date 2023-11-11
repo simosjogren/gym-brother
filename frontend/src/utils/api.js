@@ -51,16 +51,34 @@ export function postWorkout() {
     const currentTabWorkout = document.getElementById('latestWorkout').value;
     const parsedWorkout = inputParser(currentTabWorkout, exerciseClass);
 
+    // Lets add new workouts to the one going to database ONLY if they are not already there.
     for (let n = 0; n < parsedWorkout.length; n++) {
-        if (latestWorkout.includes(parsedWorkout[n])) {
-            continue;
-        } else {
+        const exerciseNameToCompare = parsedWorkout[n].exerciseName;
+        if (!latestWorkout.some(item => item.exerciseName === exerciseNameToCompare)) {
             latestWorkout.push(parsedWorkout[n]);
         }
     }
 
+    const parsedWorkoutNames = parsedWorkout.map(item => item.exerciseName);
+    // We assume that parsedWorkout are the same class everything
+    const parsedWorkoutClass = parsedWorkout[0].exerciseClass;
+
+    // Lets check which ones are removed from the new one
+    for (let k = 0; k < latestWorkout.length; k++) {
+        const foundIndex = parsedWorkoutNames.indexOf(latestWorkout[k].exerciseName);
+        // This means that the item is removed from the frontend-side.
+        if (foundIndex === -1) {
+            if (latestWorkout[k].exerciseClass === parsedWorkoutClass) {
+                console.log('Line removed from the frontend: ', latestWorkout[k]);
+                latestWorkout.splice(latestWorkout, 1);
+            }
+        }
+    }
+
+    console.log('LATESTWORKOUT!!!!!!!!!!! : ' , latestWorkout);
+    console.log('PARSEDOUTPUT!!!!! : ', parsedWorkout);
+    
     const latestWorkout_str = JSON.stringify(latestWorkout);
-    localStorage.setItem('workoutData', latestWorkout_str);
 
     const data = {
         username: localStorage.getItem('username'),
@@ -84,12 +102,12 @@ export function postWorkout() {
             return response.json();
         } else if (response.status === 500) {
             showMessage('Could not send workout to server. Fix the form.', 'red');
-            savedMessage.classList.remove('hidden');
             throw new Error(errormessage);
         }
     })
     .then(data => {
         const now = new Date();
+        localStorage.setItem('workoutData', JSON.stringify(data));
         showMessage("Workout saved at " + now.toLocaleString());
         console.log('Saved workout-data to the database:', data);
     })
@@ -97,7 +115,6 @@ export function postWorkout() {
         console.error('Error:', error);
     });
 }
-
 
 
 export function createAccount() {

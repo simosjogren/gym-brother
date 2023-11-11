@@ -6,6 +6,7 @@ const randomatic = require('randomatic');
 const exercises = require('../config/initializeExercises');
 const credentials = require('../config/initalizeCredentials');
 
+
 async function getLatestWorkoutData(username) {
     let exerciseList = [];
     try {
@@ -39,8 +40,6 @@ async function getLatestWorkoutData(username) {
   
   
   async function createAndEditExerciseData(new_exercises, old_exercises, username) {
-    new_exercises = new_exercises;
-    old_exercises = old_exercises;
     console.log("NEW EXERCISES: ", new_exercises[0]);
     console.log("OLD EXERCISES: ", old_exercises);
     const oldIdList = old_exercises.map(item => item.id);
@@ -59,6 +58,13 @@ async function getLatestWorkoutData(username) {
           exerciseName: new_exercises[i].exerciseName,
           exercises: JSON.stringify(new_exercises[i].exercises),
           comments: new_exercises[i].comments
+        }).then((savedExercise) => {
+          // 'savedExercise' will contain the saved record
+          console.log(savedExercise);
+        })
+        .catch((error) => {
+          // Handle errors
+          console.error(error);
         });
         console.log('Created new row to the database.');
         newIdList.push(exerciseId); // Add the new ID to the list for comparing afterwards.

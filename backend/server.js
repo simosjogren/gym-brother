@@ -15,10 +15,10 @@ const exercisetable = require('./config/initializeExercises');
 const credentials = require('./config/initalizeCredentials');
 // Import controller functions
 const { getLatestWorkoutData, createAndEditExerciseData, adjustLastExercises } = require('./controllers/workoutPostMethods');
+
 // Import tools
 const { inputParser } = require('./tools/inputParsing');
 const { manualUpgrade } = require('./tools/manualUpgrade');
-
 
 // Test the database-connection status
 db.authenticate()
