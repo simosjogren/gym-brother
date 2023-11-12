@@ -4,3 +4,4 @@ request.rest
 /backend/.env
 /backend/requests.rest
 /computing_backend/myenv
+/computing_backend/tools/__pycache__/

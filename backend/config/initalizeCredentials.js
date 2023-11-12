@@ -7,12 +7,12 @@ const db = require('./connectDatabase');
 
 const dbCredentials = db.define('credentials', {
   id: {
-    type: DataTypes.STRING(30),
+    type: DataTypes.STRING(32),
     primaryKey: true,
     allowNull: false
   },
   password: {
-    type: DataTypes.STRING(30),
+    type: DataTypes.STRING(32),
     allowNull: false
   },
   latestExercise: {
@@ -20,11 +20,11 @@ const dbCredentials = db.define('credentials', {
     allowNull: false
   },
   fitnessGoal: {
-    type: DataTypes.STRING(30),
+    type: DataTypes.STRING(32),
     allowNull: false
   },
   tabs: {
-    type: DataTypes.STRING(128),
+    type: DataTypes.STRING(256),
     allowNull: false
   }
 });

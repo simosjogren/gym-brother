@@ -28,6 +28,13 @@ export function getWorkout() {
             // Small parsing for the workout data:
             const exerciseClass = localStorage.getItem('selectedTab');
             const displayableString = displayableFormatConverter(data, exerciseClass);
+
+            // If we get a non-empty string back, we can enable the updateWorkout.
+            if (displayableString !== '') {
+                document.getElementById('updateWorkout').disabled = false;
+            } else {
+                document.getElementById('updateWorkout').disabled = true;
+            }
             document.getElementById('latestWorkout').value = displayableString;
         })
         .catch(error => {
@@ -106,6 +113,7 @@ export function postWorkout() {
         const now = new Date();
         localStorage.setItem('workoutData', JSON.stringify(data));
         showMessage("Workout saved at " + now.toLocaleString());
+        document.getElementById('updateWorkout').disabled = false;
         console.log('Saved workout-data to the database:', data);
     })
     .catch(error => {

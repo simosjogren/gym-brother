@@ -12,7 +12,7 @@ const sessionTokens = db.define('sessiontokens', {
     allowNull: false
   },
   token: {
-    type: DataTypes.STRING(30),
+    type: DataTypes.STRING(256),
     allowNull: false
   }
 });

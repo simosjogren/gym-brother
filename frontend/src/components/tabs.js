@@ -1,11 +1,25 @@
 import { displayableFormatConverter } from '../utils/displayableFormatConverter.js';
 import { getWorkout } from '../utils/api.js';
-import { SERVER_ADDRESS } from '../constants.js';
+import { SERVER_ADDRESS, MAX_TABS, MAX_TAB_LENGTH } from '../constants.js';
 import { showMessage } from './misc.js';
 
 export function createTabItem(tabname) {
+
+    if (tabname.length > MAX_TAB_LENGTH) {
+        showMessage("Tab name is too long, maximum length: " + MAX_TAB_LENGTH, "red");
+        return null;
+    }
+
     // Assuming you have an existing ul element with the id "myWorkoutTabs"
     var myWorkoutTabs = document.getElementById('myWorkoutTabs');
+
+    // Check the number of existing tabs
+    var existingTabs = myWorkoutTabs.querySelectorAll('.nav-item').length;
+
+    if (existingTabs >= MAX_TABS) {
+        showMessage("Cannot create more than " + MAX_TABS +" tabs.", "red");
+        return null;
+    }
 
     // Create a new li element
     var newLiElement = document.createElement('li');
@@ -29,7 +43,7 @@ export function createTabItem(tabname) {
     // Append the li element to the ul
     myWorkoutTabs.appendChild(newLiElement);
 
-    // Now we want to allow the workoutwriting, because we have the first tab.
+    // Now we want to allow the workoutwriting because we have the first tab.
     document.getElementById('latestWorkout').disabled = false;
 
     // Return the generated button element in case you want to further manipulate it
@@ -90,7 +104,13 @@ export async function getTabs() {
 
 export async function createNewTabFromScratch() {
     const newValue = document.getElementById('newTabName').value;
-    createTabItem(newValue);
+    if (newValue === '') {
+        showMessage('Please enter a tab name.', 'red');
+        return;
+    }
+    if (createTabItem(newValue) === null) {
+        return;
+    };
     let data = {newTabName: newValue, username: localStorage.getItem('username')};
         if (localStorage.getItem('selectedTab') === null) {
             document.getElementById(newValue + '-tab').classList.add('active');
@@ -110,5 +130,7 @@ export async function createNewTabFromScratch() {
         body: JSON.stringify(data),
     }).then(response => {
         response = response.json()
-    })
+    }).catch(error => {
+        console.error('Error:', error);
+    });
 }

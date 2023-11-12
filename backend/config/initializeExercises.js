@@ -25,7 +25,7 @@ const exercises = db.define('training_data', {
         allowNull: false
     },
     exercises: {
-        type: DataTypes.STRING(256),
+        type: DataTypes.STRING(1024),
         allowNull: false
     },
     comments: {

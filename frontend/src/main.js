@@ -45,6 +45,7 @@ window.onload = function() {
 document.getElementById('latestWorkout').addEventListener('input', function() {
     clearTimeout(typingTimer);
     typingTimer = setTimeout(postWorkout, 2000);
+    document.getElementById('updateWorkout').disabled = true;
 });
 
 

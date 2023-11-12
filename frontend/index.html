@@ -55,9 +55,7 @@
             <div class="mb-3">
                 <label for="fitnessGoal" class="form-label">Fitness Goal:</label>
                 <select class="form-select" id="fitnessGoal" required>
-                    <option value="weightLoss">Weight Loss</option>
                     <option value="muscleGain">Muscle Gain</option>
-                    <option value="endurance">Endurance</option>
                 </select>
             </div>
             <button type="submit" class="btn btn-success">Create Account</button>
@@ -84,7 +82,7 @@
             <label for="latestWorkout" class="form-label">Write your current workout:</label>
             <textarea class="form-control" id="latestWorkout" rows="12"></textarea>
         </div>
-        <button type="button" class="btn btn-info" id="updateWorkout">Retrieve new workout</button>
+        <button type="button" class="btn btn-info" id="updateWorkout" disabled>Retrieve new workout</button>
     </div>
 
     <script src="./src/main.js" type="module"></script>
