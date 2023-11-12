@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Frontend with Nginx
+  gymbro_frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+      - "8443:443"
+    depends_on:
+      - gymbro_nodejs_backend
+
+  # Node.js backend
+  gymbro_nodejs_backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgres://postgres_user:postgres_password@postgres_db:5432/your_database_name
+    depends_on:
+      - gymbro_postgres_db
+
+  # Python backend
+  gymbro_python_backend:
+    build:
+      context: ./computing_backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - gymbro_nodejs_backend
+
+  # PostgreSQL database
+  gymbro_postgres_db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: simo99123
+      POSTGRES_DB: gym-bro
+    ports:
+      - "5432:5432"

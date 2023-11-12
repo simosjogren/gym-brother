@@ -8,7 +8,7 @@ const db = require('./connectDatabase');
 
 const exercises = db.define('training_data', {
     id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING(16),
         primaryKey: true,
         allowNull: false,
     },
