@@ -21,6 +21,8 @@ const db = require('./config/connectDatabase');
 const exercisetable = require('./config/initializeExercises');
 const credentials = require('./config/initalizeCredentials');
 
+const PYTHON_BACKEND_URL = 'http://127.0.0.1:5000';
+
 // Test the database-connection status
 db.authenticate()
     .then( ()=>console.log('Database connected') )
@@ -67,70 +69,69 @@ app.post('/post-workout', verifyToken, async (req, res) => {
   });
   
   
-  app.post('/get-workout', verifyToken, async (req, res) => {
-      console.log('Received /get-workout command.');
-      const username = req.body.username;
-  
-      try {
-          const retrievedDBUser = await credentials.findOne({
-              where: { id: username }
-          });
-  
-          if (retrievedDBUser) {
-              console.log('Found user from the database.');
-              const latestExercises = JSON.parse(retrievedDBUser.latestExercise);
-              let exerciseList = [];
-  
-              for (let n = 0; n < latestExercises.length; n++) {
-                  const retrievedExercise = await exercisetable.findOne({
-                      where: { id: latestExercises[n] }
-                  });
-                  const retrievedExerciseData = retrievedExercise.dataValues
-                  if (retrievedExercise) {
-                      console.log('Found exercise ' + latestExercises[n] + ' from the database.');
-                      exerciseList.push(retrievedExerciseData);
-                      console.log('Retrieved exercise: ', retrievedExerciseData);
-                  } else {
-                      console.log('Did not find the exercise.');
-                  }
-              }
-              // Now we should have all the exercise data in the exerciseList.
-              res.status(201).json(exerciseList).send();
-          } else {
-              console.log('Did not find the user.');
-              res.status(404).json({ error: 'User not found' }).send();
-          }
-      } catch (error) {
-          console.error('Error:', error);
-          res.status(500).json("").send();
-      }
-  });
-  
-  
-  app.post('/upgrade-workout', verifyToken, async (req, res) => {
-      console.log('Received /upgrade-workout command.')
-      const username = req.body.username;
-      const latestWorkouts = req.body.latestWorkout;
-      const exerciseClass = req.body.exerciseClass;
-  
-  
-      try {
-          const response = await axios.post('http://localhost:5000/manual_upgrade', {
-              username: username,
-              latestWorkouts: latestWorkouts,
-              exerciseClass: exerciseClass
-          });
-          console.log('Response from python server:', response.data);
-          const newWorkouts = response.data.latestWorkouts;
-          console.log(newWorkouts)
-  
-          await createAndEditExerciseData(newWorkouts, latestWorkouts, username);
-          res.status(200).json({'new_workouts': newWorkouts}).send();
-      } catch (error) {
-          console.error('Error making Axios request:', error);
-          res.status(500).json({ error: 'Internal Server Error' }).send();
-      }
-  });
+app.post('/get-workout', verifyToken, async (req, res) => {
+    console.log('Received /get-workout command.');
+    const username = req.body.username;
+
+    try {
+        const retrievedDBUser = await credentials.findOne({
+            where: { id: username }
+        });
+
+        if (retrievedDBUser) {
+            console.log('Found user from the database.');
+            const latestExercises = JSON.parse(retrievedDBUser.latestExercise);
+            let exerciseList = [];
+
+            for (let n = 0; n < latestExercises.length; n++) {
+                const retrievedExercise = await exercisetable.findOne({
+                    where: { id: latestExercises[n] }
+                });
+                const retrievedExerciseData = retrievedExercise.dataValues
+                if (retrievedExercise) {
+                    console.log('Found exercise ' + latestExercises[n] + ' from the database.');
+                    exerciseList.push(retrievedExerciseData);
+                    console.log('Retrieved exercise: ', retrievedExerciseData);
+                } else {
+                    console.log('Did not find the exercise.');
+                }
+            }
+            // Now we should have all the exercise data in the exerciseList.
+            res.status(201).json(exerciseList).send();
+        } else {
+            console.log('Did not find the user.');
+            res.status(404).json({ error: 'User not found' }).send();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json("").send();
+    }
+});
+
+
+app.post('/upgrade-workout', verifyToken, async (req, res) => {
+    console.log('Received /upgrade-workout command.')
+    const username = req.body.username;
+    const latestWorkouts = req.body.latestWorkout;
+    const exerciseClass = req.body.exerciseClass;
+
+    try {
+        const response = await axios.post(PYTHON_BACKEND_URL + '/manual_upgrade', {
+            username: username,
+            latestWorkouts: latestWorkouts,
+            exerciseClass: exerciseClass
+        });
+        console.log('Response from python server:', response.data);
+        const newWorkouts = response.data.latestWorkouts;
+        console.log(newWorkouts)
+
+        await createAndEditExerciseData(newWorkouts, latestWorkouts, username);
+        res.status(200).json({'new_workouts': newWorkouts}).send();
+    } catch (error) {
+        console.error('Error making Axios request:', error);
+        res.status(500).json({ error: 'Internal Server Error' }).send();
+    }
+});
 
 
 app.post('/create-tab', verifyToken, async (req, res) => {

@@ -1,6 +1,6 @@
 import { displayableFormatConverter } from './displayableFormatConverter.js';
 import { inputParser } from './inputParser.js';
-import { showMessage } from '../components/misc.js';
+import { showMessage, checkCredentialValidity } from '../components/misc.js';
 import { createAccountCancelButtonPressed } from '../components/login.js';
 import { SERVER_ADDRESS } from '../constants.js';
 
@@ -123,13 +123,14 @@ export function postWorkout() {
 
 
 export function createAccount() {
+    // Picking the values from UI
     const newUsername = document.getElementById('newUsername').value;
     const newPassword = document.getElementById('newPassword').value;
     const retypePassword = document.getElementById('retypePassword').value;
     const fitnessGoal = document.getElementById('fitnessGoal').value;
 
-    if (newPassword !== retypePassword) {
-        showMessage("Passwords do not match");
+    // Checking the validity of the values
+    if (!checkCredentialValidity(newUsername, newPassword, retypePassword)) {
         return;
     }
 
@@ -168,6 +169,13 @@ export function createAccount() {
 export async function upgradeWorkout() {
     const exerciseClass = localStorage.getItem('selectedTab');
     const latestWorkout = JSON.parse(localStorage.getItem('workoutData'));
+
+    // Next, lets check if there is somekind of line without id.
+    // If there is, we need to 'synchronize' the values from the database
+    const hasObjectWithoutId = latestWorkout.some(obj => !obj.hasOwnProperty('id'));
+    if (hasObjectWithoutId) {
+        getWorkout();
+    }
 
     const data = {
         username: localStorage.getItem('username'),

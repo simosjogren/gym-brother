@@ -1,7 +1,8 @@
 import { removeAllTabs } from './tabs.js'
 import { getTabs } from './tabs.js'
 import { showMessage } from './misc.js';
-import { SERVER_ADDRESS } from '../constants.js';
+import { SERVER_ADDRESS, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, 
+    MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH } from '../constants.js';
 
 export function showLogin() {
     document.getElementById('loginForm').classList.remove('hidden');
@@ -28,9 +29,11 @@ export function createAccountCancelButtonPressed() {
     showMessage('')
 }
 
+
 export function login() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
+
     const credentials = {
         'username': username,
         'password': password
