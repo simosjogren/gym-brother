@@ -74,9 +74,6 @@ export function postWorkout() {
             }
         }
     }
-
-    console.log('LATESTWORKOUT!!!!!!!!!!! : ' , latestWorkout);
-    console.log('PARSEDOUTPUT!!!!! : ', parsedWorkout);
     
     const latestWorkout_str = JSON.stringify(latestWorkout);
 
@@ -184,7 +181,7 @@ export async function upgradeWorkout() {
 
         if (response.ok) {
             let responseData = await response.json();
-            responseData = responseData["new_workout"];
+            responseData = responseData['new_workouts'];
             console.log(responseData);
             const displayableString = displayableFormatConverter(responseData, exerciseClass);
             document.getElementById('latestWorkout').value = displayableString;

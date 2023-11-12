@@ -18,7 +18,6 @@ const { getLatestWorkoutData, createAndEditExerciseData, adjustLastExercises } =
 
 // Import tools
 const { inputParser } = require('./tools/inputParsing');
-const { manualUpgrade } = require('./tools/manualUpgrade');
 
 // Test the database-connection status
 db.authenticate()
@@ -159,19 +158,24 @@ app.post('/upgrade-workout', verifyToken, async (req, res) => {
     const username = req.body.username;
     const latestWorkouts = req.body.latestWorkout;
     const exerciseClass = req.body.exerciseClass;
-    const new_workouts = [];
-    let new_workout = {};
-    for (let n=0; n < latestWorkouts.length; n++) {
-        // We want to upgrade only the current class.
-        if (latestWorkouts[n].exerciseClass === exerciseClass) {
-            new_workout = manualUpgrade(latestWorkouts[n]);
-            new_workouts.push(new_workout);
-        } else {
-            new_workouts.push(latestWorkouts[n]);
-        }
+
+
+    try {
+        const response = await axios.post('http://localhost:5000/manual_upgrade', {
+            username: username,
+            latestWorkouts: latestWorkouts,
+            exerciseClass: exerciseClass
+        });
+        console.log('Response from python server:', response.data);
+        const newWorkouts = response.data.latestWorkouts;
+        console.log(newWorkouts)
+
+        await createAndEditExerciseData(newWorkouts, latestWorkouts, username);
+        res.status(200).json({'new_workouts': newWorkouts}).send();
+    } catch (error) {
+        console.error('Error making Axios request:', error);
+        res.status(500).json({ error: 'Internal Server Error' }).send();
     }
-    await createAndEditExerciseData(new_workouts, latestWorkouts, username);
-    res.status(200).json({'new_workout': new_workouts}).send();
 });
 
 
