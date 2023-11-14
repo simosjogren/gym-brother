@@ -51,7 +51,6 @@ export function postWorkout() {
         latestWorkout = [];
     } else {
         latestWorkout = JSON.parse(latestWorkout);
-        console.log('Parsed workout data: ', latestWorkout);
     }
 
     // Here we do the local browser saving process.
@@ -130,7 +129,9 @@ export function createAccount() {
     const fitnessGoal = document.getElementById('fitnessGoal').value;
 
     // Checking the validity of the values
-    if (!checkCredentialValidity(newUsername, newPassword, retypePassword)) {
+    const [validity, errormessage] = checkCredentialValidity(newUsername, newPassword, retypePassword);
+    if (!validity) {
+        showMessage(errormessage, 'red');
         return;
     }
 

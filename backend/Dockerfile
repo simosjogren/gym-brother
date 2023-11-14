@@ -18,6 +18,13 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
+# Docker variables
+ENV DB_HOST=gymbro_postgres_db
+ENV DB_NAME=gym-bro
+ENV DB_USERNAME=postgres
+ENV DB_PASSWORD=simo99123
+ENV ORIGIN_IP_CORS=http://localhost:8080
+
 # Expose port 3000 for the Node.js application
 EXPOSE 3000
 
