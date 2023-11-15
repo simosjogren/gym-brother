@@ -3,7 +3,7 @@
 
 const cors = require('cors');
 
-const origin_ip = process.env.ORIGIN_IP_CORS || 'http://127.0.0.1:8081';
+const origin_ip = process.env.ORIGIN_IP_CORS || 'http://192.168.1.52:8081';
 
 const corsOptions = {
   origin: origin_ip, // Replace with the actual origin of your frontend

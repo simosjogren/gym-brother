@@ -2,7 +2,6 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0 auto;
-    max-width: 800px; /* Increased max-width for larger screens */
     padding: 20px;
 }
 

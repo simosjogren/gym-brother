@@ -74,15 +74,15 @@
                 </div>
             </form>
         </div>
-        
-        <ul class="nav nav-tabs mt-4" id="myWorkoutTabs" role="tablist">
-        </ul>
-        
-        <div class="mb-3">
-            <label for="latestWorkout" class="form-label">Write your current workout:</label>
-            <textarea class="form-control" id="latestWorkout" rows="12"></textarea>
+        <div id="UIboard" class="hidden">
+            <ul class="nav nav-tabs mt-4" id="myWorkoutTabs" role="tablist">
+            </ul>
+                <div class="mb-3">
+                    <label for="latestWorkout" class="form-label">Write your current workout:</label>
+                    <textarea class="form-control" id="latestWorkout" rows="12"></textarea>
+                </div>
+                <button type="button" class="btn btn-info" id="updateWorkout" disabled>Retrieve new workout</button>
         </div>
-        <button type="button" class="btn btn-info" id="updateWorkout" disabled>Retrieve new workout</button>
     </div>
 
     <script src="./src/main.js" type="module"></script>

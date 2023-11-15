@@ -1,8 +1,7 @@
 import { removeAllTabs } from './tabs.js'
 import { getTabs } from './tabs.js'
 import { showMessage } from './misc.js';
-import { SERVER_ADDRESS, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, 
-    MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH } from '../constants.js';
+import { SERVER_ADDRESS } from '../constants.js';
 
 export function showLogin() {
     document.getElementById('loginForm').classList.remove('hidden');
@@ -45,22 +44,19 @@ export function login() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(credentials),
-        })
-        .then(response => {
+        }).then(response => {
             if (response.status === 200) {
                 showMessage('Login was succesful!');
                 return response.json();
             } else {
                 showMessage('Failed to login', 'red');
             }
-        })
-        .then(token => {
+        }).then(token => {
             localStorage.setItem('token', token.token);
             localStorage.setItem('username', credentials.username);
             localStorage.setItem('workoutData', JSON.stringify([]));
             handleLoginSuccess(credentials.username);
-        })
-        .catch(error => {
+        }).catch(error => {
             console.error('Error:', error);
         });
 }
@@ -80,6 +76,9 @@ export function showNotLoggedIn() {
     document.getElementById('latestWorkout').disabled = true;
     document.getElementById('CreateTabFormDiv').classList.add('hidden');
 
+    // Lets remove the workout screen
+    document.getElementById('UIboard').classList.add('hidden');
+
     removeAllTabs();    //  Remove all tabs from the workout page.
 }
 
@@ -98,6 +97,9 @@ export async function handleLoginSuccess(username) {
     createAccountForm.classList.add('hidden');
     document.getElementById('loginOptions').classList.add('hidden');
     document.getElementById('CreateTabFormDiv').classList.remove('hidden');
+
+    // Lets show the workout screen
+    document.getElementById('UIboard').classList.remove('hidden');
 
     // Clear the content of the forms
     loginForm.reset();
