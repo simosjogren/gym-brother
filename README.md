@@ -2,8 +2,12 @@
 Past-time project (NodeJS, SQL, Docker, Python) for getting better at the gym
 
 Features:
-Password encryption, Python backend for counting the new exercise when going to gym for the next time.
-Includes sessionTokens for users
+-Python backend for counting the new exercise when going to gym for the next time.
+-Parsing the workout data out of the user input.
+-Password encryption.
+-Gives sessionTokens for users.
+-PostgreSQL database
+-Docker-compose for orchestrating everything.
 
 ![login_screen](https://github.com/simosjogren/gym-brother/assets/50803295/9793fb76-0ac2-4571-b224-e6e2c8e19bf6)
 
